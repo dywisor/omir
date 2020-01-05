@@ -1,0 +1,11 @@
+exclude index.txt
+
+exclude /firmware
+
+include /doc
+exclude /doc/*/
+
+include /patches
+include /patches/timestamp
+
+include /syspatch

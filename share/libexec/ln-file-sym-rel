@@ -1,0 +1,33 @@
+#!/usr/bin/env perl
+#
+# ln-file-sym-rel src dst
+#   Create symbolic link dst pointing to src using a relative path.
+# 
+
+package LnFileSymRelMain;
+
+use strict;
+use warnings;
+use feature qw( say );
+
+use Cwd;
+use File::Spec;
+
+my $arg_src = shift or die "Missing src\n";
+my $arg_dst = shift or die "Missing dst\n";
+
+my $src = Cwd::realpath ( $arg_src ) or die "Failed to get src realpath: $!\n";
+my $dst = Cwd::realpath ( $arg_dst ) || File::Spec->canonpath ( $arg_dst ) or die "Failed to get dst realpath: $!\n";
+
+my $src_rel_tmp = File::Spec->abs2rel ( $src, $dst ) or die "Failed to get relative link dst\n";
+my @src_rel_parts = File::Spec->splitdir ( $src_rel_tmp );
+
+if ( (scalar @src_rel_parts) && ($src_rel_parts[0] eq '..') ) {
+	shift @src_rel_parts;
+} else {
+	die "not implemented";
+}
+
+my $src_rel = File::Spec->catdir ( @src_rel_parts );
+
+symlink $src_rel, $dst or die "Failed to create symbolic link: $!\n";

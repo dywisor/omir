@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+# This script can be used to initialize a network interface
+# for unattented network installation.
+# Make sure to add it to the "netboot" group.
+
+local__ai_ifconfig() {
+	return 0
+}
+
+local__ai_ifconfig

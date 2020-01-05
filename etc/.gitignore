@@ -1,0 +1,8 @@
+# generated file
+/omir.mkenv
+
+# generated or local file
+/omir.list.[0-9]*
+
+# local overrides
+*.local

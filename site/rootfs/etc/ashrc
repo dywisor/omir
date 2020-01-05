@@ -1,0 +1,71 @@
+#!/bin/sh
+
+__shinit_setvar() {
+   local varname
+   local val
+
+   varname="${1}"
+   shift || return 2
+   [ ${#} -gt 0 ] || return 3
+
+   val="$( "${@}" 2>/dev/null )" && [ -n "${val}" ] || return
+
+   export "${varname}=${val}"
+}
+
+
+__shinit_PATH_add() {
+   case ":${PATH}:" in
+      *":${1}:"*) return 0 ;;
+      *) PATH="${1}${PATH:+:${PATH}}"; export PATH ;;
+   esac
+}
+
+__shinit_setvar EUID id -u
+__shinit_setvar UID  id -ru
+__shinit_setvar USER id -rnu
+
+if [ -z "${HOME-}" ] && [ -n "${USER-}" ]; then
+   HOME="$( 2>/dev/null getent passwd "${USER}" | awk -F : '{ print $6; exit; }' )"
+   [ -z "${HOME}" ] || export HOME
+fi
+
+[ -z "${HOME-}" ] || [ ! -d "${HOME}/bin" ] || __shinit_PATH_add "${HOME}/bin"
+
+[ ! -r /etc/shinit/ramdisk.sh ] || . /etc/shinit/ramdisk.sh || :
+
+export LS_OPTIONS='-h'
+
+alias ls='ls ${LS_OPTIONS}'
+alias sl='ls ${LS_OPTIONS}'
+alias lh='ls ${LS_OPTIONS}'
+
+alias ll='ls ${LS_OPTIONS} -l'
+alias l='ls ${LS_OPTIONS} -lAF'
+
+
+export DF_OPTIONS='-h'
+alias df='df ${DF_OPTIONS}'
+
+alias 'cd..'='cd ..'
+alias 'cd.'='cd ..'
+
+#alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+alias mvi='mv -vi'
+
+export GIT_LANG='en_US.UTF-8'
+alias git='LANG=${GIT_LANG:-C} LC_ALL=${GIT_LANG:-C} git'
+alias gti='LANG=${GIT_LANG:-C} LC_ALL=${GIT_LANG:-C} git'
+
+alias tcpdump='tcpdump -s 65535'
+
+case "$-" in
+   *i*)
+      case "${0}" in
+         sh|*/sh) : ;;
+	 *) . /etc/shinit/fancy-ps1.sh ;;
+      esac
+   ;;
+esac

@@ -1,0 +1,17 @@
+#!/usr/bin/env perl
+
+package NHTD;
+
+use strict;
+use warnings;
+use feature qw( say );
+
+my $arg = shift or die "Bad usage.\n";
+
+if ( (lc $arg) =~ m/^(?:0x)?([a-f0-9]{8})$/mx ) {
+	my $byte_str = $1;
+	say {*STDOUT} ( join '.', map { hex substr $byte_str, (2 * $_), 2; } (0..3) );
+
+} else {
+	die "Bad input.\n"
+}

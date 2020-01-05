@@ -1,0 +1,4 @@
+/gen-install-conf
+/obj/*
+!/obj/.keep
+/tmp

@@ -1,0 +1,5 @@
+# see examples/ for some basic profiles
+/profiles
+
+# local configuration
+*.local

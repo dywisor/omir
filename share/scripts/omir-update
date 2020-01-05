@@ -1,0 +1,9 @@
+#!/bin/sh
+set -fu
+
+. "${OMIR_SHLIB}/base.sh" || exit 9
+. "${OMIR_SHLIB}/omir-sync.sh" || exit 9
+
+omir_fetch_openbsd_firmware "${@}" || exit
+omir_fetch_openbsd_releases "${@}" || exit
+omir_mirror_mkindex

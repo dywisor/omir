@@ -1,0 +1,114 @@
+OCONF_INSTALLURL_LOCAL='http://omir/OpenBSD/'
+OCONF_INSTALLURL_UPSTREAM='https://cdn.openbsd.org/pub/OpenBSD/'
+
+# this name has to match the user configured in autoinstall.conf
+OCONF_LOGIN_USER='cosmo'
+#OCONF_LOGIN_USER_PASS='NOT_IMPLEMENTED'
+
+# create an user for unprivileged admin purposes
+# if set to a non-empty value.
+#
+# The user will not be able to log in,
+# but root may switch to it via /root/bin/<name>
+# or su -l -s /bin/ksh <name>.
+#
+OCONF_UNPRIV_USER='wanda'
+OCONF_UNPRIV_UID='1001'
+#OCONF_UNPRIV_USER_PASS='NOT_IMPLEMENTED'
+
+OCONF_GIT_USER_NAME='autocommit'
+OCONF_GIT_USER_EMAIL='admin@localhost'
+
+OCONF_DEFAULT_HOSTNAME='staging.local'
+
+# if set to 1, switch installurl to upstream mirror
+OFEAT_SHALLOW_LOCAL_MIRROR=1
+
+OFEAT_NETCONFIG=1
+OFEAT_NETCONFIG_BY_MAC=1
+OFEAT_NETCONFIG_BY_DHCP=1
+OCONF_NETCONFIG_GUESS_IFACE_LIST='vmx0 vio0'
+
+# if set to 1, force-sync hwclock during install
+OFEAT_SYNC_HWCLOCK=0
+
+# packages to install on first boot
+#   if OFEAT_PKG_INSTALL==1
+OCONF_PKG_INSTALL="rsync-- vim--no_x11"
+
+# whether to generate /etc/ssh/sshd_config from template
+OFEAT_SSHD_CONFIG=1
+
+# create and mount ramdisk at /ram?
+OFEAT_RAMDISK=1
+
+# create per-user directories for root#
+# and all users w/ uid >= 1000 in /ram/users/?
+#  depends on OFEAT_RAMDISK
+OFEAT_RAMDISK_USERDIR=1
+
+# create /ram/log/messages and set up log rotation for it?
+#  depends on OFEAT_RAMDISK
+OFEAT_RAMDISK_LOG=1
+
+# whether to install git and configure user name/email
+# - for user root
+# - for unpriv user if OCONF_UNPRIV_USER
+OFEAT_GIT=1
+
+# whether to git-check-in /etc
+#  depends on OFEAT_GIT
+OFEAT_GIT_CHECKIN_ETC=0
+
+# whether to run fw_update -p <local mirror> on first boot
+#  depends on OCONF_INSTALLURL_LOCAL
+OFEAT_INSTALL_FW=1
+
+# whether to run syspatch on first boot
+OFEAT_SYSPATCH=1
+
+# whether to install packages listed in OCONF_PKG_INSTALL on first boot
+OFEAT_PKG_INSTALL=1
+
+# whether to remove setup files (/FACTORY/site) when done
+OFEAT_AUTO_CLEANUP_FILES=1
+
+# whether to reboot after running rc.firsttime hooks
+# if requested by any hook
+OFEAT_AUTO_REBOOT=1
+
+# EXPERIMENTAL FEATURE -- needs testing
+#
+# Whether to allow dynamic network configuration
+# based on the variables defined below
+# and the network address and netmask/prefixlen
+# as detected by OFEAT_NETCONFIG*.
+# DNS-related configuration also takes
+# the configured hostname into account.
+#
+# This relies on knowledge about the site's networks
+# and is therefore disabled by default.
+#
+
+# - Trigger dynamic network configuration on fillup_config()?
+OFEAT_NETCONFIG_DYNAMIC_AUTO=0
+
+# - IPv4 gateway
+OFEAT_NETCONFIG_DYNAMIC_INET_GW=0
+#OCONF_NETCONFIG_DYNAMIC_INET_GW="1"
+
+# - IPv6 gateway
+OFEAT_NETCONFIG_DYNAMIC_INET6_GW=0
+#OCONF_NETCONFIG_DYNAMIC_INET6_GW="f:1"
+
+# - nameservers
+OFEAT_NETCONFIG_DYNAMIC_RESOLV_NS=0
+#OCONF_NETCONFIG_DYNAMIC_INET_RESOLV_NS="2 3"
+#OCONF_NETCONFIG_DYNAMIC_INET6_RESOLV_NS="f:2 f:3"
+
+# - DNS domain search list
+OFEAT_NETCONFIG_DYNAMIC_RESOLV_SEARCH=0
+#OCONF_NETCONFIG_DYNAMIC_RESOLV_SEARCH_CUT=2
+#OCONF_NETCONFIG_DYNAMIC_RESOLV_SEARCH_SKIP=0
+#OCONF_NETCONFIG_DYNAMIC_RESOLV_SEARCH_APPEND=""
+#OCONF_NETCONFIG_DYNAMIC_RESOLV_SEARCH_PREPEND=""

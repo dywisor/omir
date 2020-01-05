@@ -1,0 +1,29 @@
+#!/bin/sh
+
+get_responsefile__override() {
+	# outer local: _if
+	#   interface
+	#
+	# outer local: _path
+	#   url path relative to AI_SERVER
+	#
+	# outer global: AI_HOSTNAME
+	#   used to guess response file
+	#
+	# outer global: AI_MODE
+	#   should be "upgrade" or "install"
+	#
+	# outer global: AI_SERVER
+	#   name/IP of response file server
+	#
+	#
+	# Implementation options:
+	#   (1) set AI_MODE and copy file to /tmp/ai/ai.$AI_MODE.conf
+	#   (2) set _if, AI_MODE, AI_SERVER and optionally AI_HOSTNAME
+	#   (3) call "get_responsefile__dhclient"
+	#
+	# Useful helper functions from caller:
+	#   - get_ifs - return list of all network devices
+
+	get_responsefile__dhclient
+}

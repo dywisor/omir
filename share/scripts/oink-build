@@ -1,0 +1,130 @@
+#!/bin/sh
+set -fu
+
+. "${OMIR_SHLIB}/base.sh" || exit 9
+. "${OMIR_SHLIB}/omir-access.sh" || exit 9
+. "${OMIR_SHLIB}/oink.sh" || exit 9
+. "${OMIR_SHLIB}/oink-default-hooks.sh" || exit 9
+
+autodie oink_init_vars
+
+autodie dodir "${OMIR_OINK_BUILD_ROOT}"
+autodie dodir "${OMIR_OINK_STATE_DIR}"
+
+# check release version early on
+if [ -e "${oink_statefile_rel}" ]; then
+	read oink_rel_saved < "${oink_statefile_rel}" || die
+
+	if [ -n "${oink_rel_saved}" ] && [ "${oink_rel}" != "${oink_rel_saved}" ]; then
+		die "OpenBSD release mismatch -- please nuke ${OMIR_OINK_BUILD_ROOT} and start over."
+	fi
+fi
+
+# write release version we are building against to state file
+printf '%s\n' "${oink_rel}" > "${oink_statefile_rel}" || die "Failed to create state file: rel"
+
+
+# switch TMPDIR if configured
+if [ -n "${OMIR_OINK_TMPDIR-}" ]; then
+	autodie dodir "${OMIR_OINK_TMPDIR}" 1777
+	export TMPDIR="${OMIR_OINK_TMPDIR}"
+fi
+
+
+# populate build root
+if [ ! -e "${oink_statefile_have_src_unpacked}" ]; then
+	autodie oink_unpack_omir_tgz_to_build_root 'src.tar.gz'
+	autodie touch -- "${oink_statefile_have_src_unpacked}"
+fi
+
+if [ ! -e "${oink_statefile_have_sys_unpacked}" ]; then
+	autodie oink_unpack_omir_tgz_to_build_root 'sys.tar.gz'
+	autodie touch -- "${oink_statefile_have_sys_unpacked}"
+fi
+
+
+# change working directory to build root
+cd "${OMIR_OINK_BUILD_ROOT}" || die
+
+# hook: init
+autodie oink_run_hook init
+
+
+# clean up files from previous runs
+#  so that a rebuild gets triggered
+rmfile "${oink_bdir_arch_ramdisk}/mr.fs"
+
+
+# create obj dir
+if [ -n "${oink_bdir_sys_arch_compile_ramdisk}" ]; then
+	autodie oink_make "${oink_bdir_sys_arch_compile_ramdisk}" obj
+fi
+
+
+# hook: kconfig w/ default
+if [ -n "${oink_bdir_sys_arch_conf_ramdisk}" ]; then
+	autodie oink_run_hook kconfig - KCONF "${oink_bdir_sys_arch_conf_ramdisk}"
+	if [ ${oink_hook_did_run} -eq 0 ]; then
+		autodie oink_default_kconfig
+	fi
+fi
+
+# hook: miniroot
+autodie oink_run_hook miniroot "${oink_bdir_miniroot}"
+
+# hook: inject w/ default
+autodie oink_run_hook inject
+if [ ${oink_hook_did_run} -eq 0 ]; then
+	autodie oink_default_inject
+fi
+# hook: inject-extra
+autodie oink_run_hook inject-extra
+
+# hook: build-special
+autodie oink_run_hook build-special
+# build ramdisk programs for crunched binary
+autodie oink_make "${oink_bdir_special}"
+
+# hook: build-ramdisk
+autodie oink_run_hook build-ramdisk
+# compile miniroot / cd
+autodie oink_make "${oink_bdir_arch_ramdisk}"
+
+# publish to mirror if configured
+if \
+	[ "${OMIR_OINK_LOCAL_PUBLISH:-0}" -eq 1 ] && \
+	[ -n "${OMIR_OINK_LOCAL_PUBLISH_DIR-}" ]
+then
+	# OpenBSD/<rel>/<arch>/oink
+	publish_dir="${OMIR_OINK_LOCAL_PUBLISH_DIR}/${oink_arch}"
+
+	autodie dodir "${OMIR_OINK_LOCAL_PUBLISH_DIR}" 0755 "${OMIR_OINK_LOCAL_PUBLISH_OWNER-}"
+	autodie dodir "${publish_dir}" 0755 "${OMIR_OINK_LOCAL_PUBLISH_OWNER-}"
+
+	for fname in \
+		"miniroot${oink_rel_short}.fs" \
+		"cd${oink_rel_short}.iso"
+	do
+		src="${oink_bdir_arch_ramdisk}/${fname}"
+		dst="${publish_dir}/${fname}"
+
+		if [ -f "${src}" ]; then
+			einfo "Copying ${fname} to ${publish_dir}"
+			autodie cp -f -- "${src}" "${dst}"
+			autodie chmod -- 0644 "${dst}"
+			if [ -n "${OMIR_OINK_LOCAL_PUBLISH_OWNER-}" ]; then
+				autodie chown -- "${OMIR_OINK_LOCAL_PUBLISH_OWNER}" "${dst}"
+			fi
+		else
+			ewarn "Output file missing: ${src}"
+		fi
+	done
+
+	autodie mkindex "${publish_dir}"
+	if [ -n "${OMIR_OINK_LOCAL_PUBLISH_OWNER-}" ]; then
+		autodie chown -- "${OMIR_OINK_LOCAL_PUBLISH_OWNER}" "${publish_dir}/index.txt"
+	fi
+fi
+
+# hook: fini
+autodie oink_run_hook fini

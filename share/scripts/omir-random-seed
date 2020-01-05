@@ -1,0 +1,5 @@
+#!/bin/sh
+set -fu
+
+mkdir -p -- "${MIRROR_PXE}/etc" || exit
+exec dd if=/dev/random of="${MIRROR_PXE}/etc/random.seed" bs=512 count=1 conv=fsync

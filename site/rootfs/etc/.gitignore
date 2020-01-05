@@ -1,0 +1,15 @@
+*~
+*.old
+*.bak
+*.swp
+*.db
+
+/examples
+/firmware
+/localtime
+/magic
+/moduli
+/random.seed
+/rmt
+/ssl
+/termcap

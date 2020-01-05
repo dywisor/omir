@@ -1,0 +1,12 @@
+#!/bin/sh
+set -fu
+
+touch -- /rc.firsttime.log
+chmod -- 0600 /rc.firsttime.log
+
+{
+FACTORY_SITE_MODE=firsttime
+. /FACTORY/site/share/functions.sh || exit 8
+
+run_hooks rc.firsttime
+} </dev/null 2>&1 | tee -a /rc.firsttime.log

@@ -1,0 +1,27 @@
+include /@@REL@@
+
+include /@@REL@@/src.tar.gz
+include /@@REL@@/sys.tar.gz
+
+include /@@REL@@/amd64
+exclude /@@REL@@/amd64/oink
+exclude /@@REL@@/amd64/site*.tgz
+include /@@REL@@/amd64/*.EFI
+include /@@REL@@/amd64/*.fs
+include /@@REL@@/amd64/*.iso
+
+include /@@REL@@/packages
+include /@@REL@@/packages/amd64
+exclude /@@REL@@/packages/*/
+include /@@REL@@/packages-stable
+include /@@REL@@/packages-stable/amd64
+exclude /@@REL@@/packages-stable/*/
+exclude /@@REL@@/*.tar.gz
+exclude /@@REL@@/*/
+
+include /patches/@@REL@@.tar.gz
+include /patches/@@REL@@
+
+include /syspatch/@@REL@@
+include /syspatch/@@REL@@/amd64
+exclude /syspatch/@@REL@@/*/

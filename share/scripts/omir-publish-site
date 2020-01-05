@@ -1,0 +1,24 @@
+#!/bin/sh
+# Usage: omir-publish-site <site_tarball> [<releases>] [<architectures>]
+set -fu
+
+. "${OMIR_SHLIB}/base.sh" || exit 9
+. "${OMIR_SHLIB}/omir-access.sh" || exit 9
+
+src="${1:?missing <src> file}"
+releases="${2:-${OMIR_REL:?}}"
+archv="${3:-${OMIR_ARCH:?}}"
+
+for rel in ${releases}; do
+	autodie openbsd_get_short_rel "${rel}"
+	rel_short="${v0:?}"
+
+	for arch in ${archv}; do
+		omira_get_filepath "${rel}" "${arch}" "site${rel_short}.tgz"
+		dst="${v0:?}"
+
+		einfo "${dst}"
+		autodie install -D -m 0644 -- "${src}" "${dst}"
+		autodie mkindex "${dst%/*}"
+	done
+done

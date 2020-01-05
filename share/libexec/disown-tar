@@ -1,0 +1,18 @@
+#!/usr/bin/env perl
+
+package DisownTar;
+
+use strict;
+use warnings;
+use feature qw( say );
+
+use Archive::Tar;
+
+my $tarfile = shift @ARGV or die;
+my $tar = Archive::Tar->new ( $tarfile ) or die;
+
+foreach my $member ( $tar->list_files() ) {
+	$tar->chown ( $member, 'root', 'wheel' ) or die;
+}
+
+$tar->write ( $tarfile );
