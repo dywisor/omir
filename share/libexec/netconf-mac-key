@@ -90,7 +90,8 @@ sub main {
 	if ( scalar @ARGV ) { die "Too many positional arguments.\n"; }
 
 	# obfuscate MAC address
-	$arg = $opts->{'method'} // DEFAULT_METHOD;
+	$arg = $opts->{'method'};
+	$arg = DEFAULT_METHOD if ( (not defined $arg) || ($arg eq 'default') );
 	$keyfunc = $METHOD_MAP->{$arg} or die "Unknown method ${arg}.\n";
 
 	$key = &$keyfunc ( $arg, $mac ) or die "Failed to convert MAC to key.\n";
