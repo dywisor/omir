@@ -235,10 +235,14 @@ OCONF_NETCONFIG_GUESS_IFACE_LIST='vmx0 vio0'
 #     from the already active DHCP lease of the interface.
 #     IPv4 only, hostname should be provided via DHCP.
 #
-# These strategies may be combined,
-# the stacking order is MAC > DHCPv4 > defaults(=current),
-# meaning that a hostname retrieved via MAC is preferred
-# over one retrieved via DHCPv4 a.s.o..
+# Several strategies may be selected,
+# the first one to succeed configures the interface.
+# The "defaults" strategy (current and/or dynamic, see below)
+# can not be deselected and is used to fill up missing information.
+# It also serves as overall fallback should all other strategies fail.
+#
+# Order of preference: MAC, DHCPv4, defaults
+#
 OFEAT_NETCONFIG_BY_MAC=1
 OFEAT_NETCONFIG_BY_DHCP=1
 
