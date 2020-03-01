@@ -273,10 +273,11 @@ OCONF_NETCONFIG_BY_MAC_LOOKUP_ZONE='boot.local'
 # Known algorithms include:
 # - as-is (no obfuscation)
 # - sha1
-# - sha224 [DEFAULT]
+# - sha224
 # - sha256 (with truncation)
+# - default (-> sha224)
 #
-OCONF_NETCONFIG_BY_MAC_LOOKUP_KEY='sha224'
+OCONF_NETCONFIG_BY_MAC_LOOKUP_KEY='default'
 
 # After retrieving the fully qualified hostname from the lookup zone,
 # gateway / name server / time server addresses can be looked up
