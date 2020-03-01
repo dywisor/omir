@@ -228,7 +228,7 @@ OCONF_NETCONFIG_GUESS_IFACE_LIST='vmx0 vio0'
 #     but requires that the DNS server used during installation
 #     is under your control.
 #
-#     NOT IMPLEMENTED.
+#     IN PROGRESS.
 #
 # (c) DHCPv4
 #     Queries hostname / DNS domain search and name servers
@@ -243,9 +243,73 @@ OCONF_NETCONFIG_GUESS_IFACE_LIST='vmx0 vio0'
 #
 # Order of preference: MAC, DHCPv4, defaults
 #
+
+# DNS/MAC-based Network Configuration
+# +++++++++++++++++++++++++++++++++++
+
+# Enable MAC interface config strategy
 OFEAT_NETCONFIG_BY_MAC=1
+
+# DNS zone for mac -> fqdn lookup (CNAME record)
+OCONF_NETCONFIG_BY_MAC_LOOKUP_ZONE='boot.local'
+
+# lookup key obfuscation
+#
+# MAC addresses will always be normalized
+# by converting them to lowercase and replacing ':' with '-',
+# resulting in a lookup key like '00-00-5e-00-53-01'.
+#
+# It may then be hashed to hide the actual MAC address.
+# Note that does not increase security in the 'source' network
+# (the one containing the new machine) since tools like
+# tcpdump may reveal the MAC address there.
+# As such, it is only meaningful to make tampering zone files
+# on the DNS server a little bit more challenging
+# or if there is some routing in between.
+#
+# If necessary, the final result is truncated to 63 chars
+# to fit the acceptable length of a domain label.
+#
+# Known algorithms include:
+# - as-is (no obfuscation)
+# - sha1
+# - sha224 [DEFAULT]
+# - sha256 (with truncation)
+#
+OCONF_NETCONFIG_BY_MAC_LOOKUP_KEY='sha224'
+
+# After retrieving the fully qualified hostname from the lookup zone,
+# gateway / name server / time server addresses can be looked up
+# relative to the host's domain (A / AAAA records).
+#
+# For a different approach, see dynamic network configuration below.
+#
+OFEAT_NETCONFIG_BY_MAC_LOOKUP_GW=1
+OCONF_NETCONFIG_BY_MAC_LOOKUP_GW='gw'
+
+OFEAT_NETCONFIG_BY_MAC_LOOKUP_NS=1
+OCONF_NETCONFIG_BY_MAC_LOOKUP_NS='ns-001 ns-002'
+
+# NOT IMPLEMENTED - NTP
+#OFEAT_NETCONFIG_BY_MAC_LOOKUP_NTP=1
+#OCONF_NETCONFIG_BY_MAC_LOOKUP_NTP='time-001 time-002'
+
+# NOT IMPLEMENTED
+# Statically set prefix length using DNS lookups.
+#OCONF_NETCONFIG_BY_MAC_LOOKUP_INET_MASK='cidr4'
+#OCONF_NETCONFIG_BY_MAC_LOOKUP_INET6_MASK='cidr6'
+
+
+# DHCP-based Network Configuration
+# ++++++++++++++++++++++++++++++++
+
+# Enable DHCPv4 interface config strategy
 OFEAT_NETCONFIG_BY_DHCP=1
 
+
+# Dynamic Network Configuration
+# +++++++++++++++++++++++++++++
+#
 # EXPERIMENTAL FEATURE -- needs testing
 #
 # Whether to allow dynamic network configuration
