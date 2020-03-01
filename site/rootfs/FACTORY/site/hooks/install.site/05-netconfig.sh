@@ -8,33 +8,6 @@ if ! get_iface_cur_config; then
 fi
 
 
-iface_conf_by_mac() {
-	# NOT IMPLEMENTED
-	return 1
-}
-
-iface_conf_by_dhcp() {
-	iface_fillup_config_from_cur
-
-	if [ -z "${iface_hostname}" ]; then
-		iface_hostname="$( dhclient_lease_get_hostname "${iface}" )" || :
-	fi
-
-	if [ -z "${iface_resolv_search}" ]; then
-		iface_resolv_search="$( dhclient_lease_get_domain_search "${iface}" )" || :
-		if [ -z "${iface_resolv_search}" ]; then
-			iface_resolv_search="$( dhclient_lease_get_domain_name "${iface}" )" || :
-		fi
-	fi
-
-	if [ -z "${iface_resolv_ns}" ]; then
-		iface_resolv_ns="$( dhclient_lease_get_ns "${iface}" )" || :
-	fi
-
-	iface_configured
-}
-
-
 # strategies.
 set -- \
 	"${OFEAT_NETCONFIG_BY_MAC:-0}"  iface_conf_by_mac \
