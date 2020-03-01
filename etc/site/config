@@ -1,81 +1,246 @@
+# site Configuration
+# ==================
+#
+# This configuration file will be used for the site.tgz tarball
+# and the autoinstall answer file.
+#
+# It must be parseable by both sh and omir's config reader
+# - do not use spaces around '='
+# - variable substitution ($VAR) is not supported
+# (FIXME: generate sh file on-the-fly)
+#
+# Rather than changing variables here,
+# write your modifications to "config.local".
+#
+# OFEAT variables control whether a features is enabled (1) or disabled (0).
+# OCONF provide the actual data for a particular feature, but will be
+# ineffective unless their corresponding OFEAT variable is set to 1.
+# A few features are controlled by OCONF variables only.
+#
+# Unless stated otherwise, feature variables (OFEAT) default to disabled (0).
+# Most OCONF variables are optional and default to the empty string (""),
+# mandatory ones are flagged accordingly.
+#
+
+# Package Management Configuration
+# --------------------------------
+
+# URL to local OpenBSD mirror suitable for installurl(5)
+#
+#   The value provided here relies on a sensible DNS search domain.
 OCONF_INSTALLURL_LOCAL='http://omir/OpenBSD/'
+
+# URL to upstream OpenBSD mirror suitable for installurl(5)
 OCONF_INSTALLURL_UPSTREAM='https://cdn.openbsd.org/pub/OpenBSD/'
 
-# this name has to match the user configured in autoinstall.conf
-OCONF_LOGIN_USER='cosmo'
-#OCONF_LOGIN_USER_PASS='NOT_IMPLEMENTED'
-
-# create an user for unprivileged admin purposes
-# if set to a non-empty value.
+# feature: partial local mirror
 #
-# The user will not be able to log in,
-# but root may switch to it via /root/bin/<name>
-# or su -l -s /bin/ksh <name>.
+#   Whether to switch /etc/installurl to the upstream mirror after
+#   installing sets, but before installing any system patches or packages.
+#
+#   This is useful if the local mirror contains the set files only.
+#
+OFEAT_SHALLOW_LOCAL_MIRROR=1
+
+# Patches and Packages Installation
+# ---------------------------------
+
+# feature: Whether to run fw_update -p <local mirror> on first boot
+#
+#   This is useful if the deployed systems may not access the official
+#   firmware servers , or to reduce overall internet
+#   bandwidth usage.
+#
+#   Note that the deployed system will try to fetch firmware files
+#   from the official servers (firmware.openbsd.org) during init.
+#
+#   Depends on OCONF_INSTALLURL_LOCAL.
+OFEAT_INSTALL_FW=1
+
+# feature: Whether to run syspatch on first boot
+#
+#   This will honor the configured installurl.
+#
+#   Consider enabling OFEAT_AUTO_REBOOT together with this feature.
+OFEAT_SYSPATCH=1
+
+# feature: Whether to install packages listed in OCONF_PKG_INSTALL on first boot
+OFEAT_PKG_INSTALL=1
+
+# List of packages to be installed
+OCONF_PKG_INSTALL="rsync-- vim--no_x11"
+
+
+# User Accounts
+# -------------
+
+# By default, two unprivileged users will be created:
+# - a login user that may elevate to root via su(1)
+# - an additional user that may not log in and to whom only root can switch
+#   via /root/bin/<name> or su -l -s /bin/ksh <name>.
+#   This user account may not su(1) to root.
+#   It is meant for unprivileged admin purposes.
+#
+# The users will be named cosmo & wanda unless overridden in config.local.
+#
+# The login user will also be used for generating the autoinstall answer file,
+# so do not set it in config.autoinstall.
+
+# login user (REQUIRED)
+#
+#  Specify the user name and its password here, the uid will be 1000.
+#  The password may be a password hash,
+#  empty for password login disabled (still allowing ssh key-based auth)
+#  or a plain-text passphrase.
+#
+#  Plain-text passphrases will be hashed with encrypt(1) when generating
+#  the autoinstall answer file, which is supported on OpenBSD systems only.
+#
+OCONF_LOGIN_USER='cosmo'
+#OCONF_LOGIN_USER_PASS='secret'
+
+# unprivileged user
+#
+#   Set the user name and its uid here.
+#   The passphrase will be set to "login disabled" (thirteen asterisk chars),
+#   it can not be controlled here.
+#
+#   Can be disabled by setting the user name to the empty string.
 #
 OCONF_UNPRIV_USER='wanda'
 OCONF_UNPRIV_UID='1001'
-#OCONF_UNPRIV_USER_PASS='NOT_IMPLEMENTED'
 
+
+# Git
+# ---
+
+# feature: Whether to install the git package and configure user name/email
+# - for the root user
+# - for the unprivileged user if OCONF_UNPRIV_USER is also set
+#
+#   Optional, defaults to disabled (0).
+OFEAT_GIT=1
+
+# user name/email for git-config
 OCONF_GIT_USER_NAME='autocommit'
 OCONF_GIT_USER_EMAIL='admin@localhost'
 
-OCONF_DEFAULT_HOSTNAME='staging.local'
-
-# if set to 1, switch installurl to upstream mirror
-OFEAT_SHALLOW_LOCAL_MIRROR=1
-
-OFEAT_NETCONFIG=1
-OFEAT_NETCONFIG_BY_MAC=1
-OFEAT_NETCONFIG_BY_DHCP=1
-OCONF_NETCONFIG_GUESS_IFACE_LIST='vmx0 vio0'
-
-# if set to 1, force-sync hwclock during install
-OFEAT_SYNC_HWCLOCK=0
-
-# packages to install on first boot
-#   if OFEAT_PKG_INSTALL==1
-OCONF_PKG_INSTALL="rsync-- vim--no_x11"
-
-# whether to generate /etc/ssh/sshd_config from template
-OFEAT_SSHD_CONFIG=1
-
-# create and mount ramdisk at /ram?
-OFEAT_RAMDISK=1
-
-# create per-user directories for root#
-# and all users w/ uid >= 1000 in /ram/users/?
-#  depends on OFEAT_RAMDISK
-OFEAT_RAMDISK_USERDIR=1
-
-# create /ram/log/messages and set up log rotation for it?
-#  depends on OFEAT_RAMDISK
-OFEAT_RAMDISK_LOG=1
-
-# whether to install git and configure user name/email
-# - for user root
-# - for unpriv user if OCONF_UNPRIV_USER
-OFEAT_GIT=1
-
-# whether to git-check-in /etc
-#  depends on OFEAT_GIT
+# feature: Whether to initialize /etc as git repo and check in most files
+#
+#   Depends on OFEAT_GIT.
 OFEAT_GIT_CHECKIN_ETC=0
 
-# whether to run fw_update -p <local mirror> on first boot
-#  depends on OCONF_INSTALLURL_LOCAL
-OFEAT_INSTALL_FW=1
 
-# whether to run syspatch on first boot
-OFEAT_SYSPATCH=1
 
-# whether to install packages listed in OCONF_PKG_INSTALL on first boot
-OFEAT_PKG_INSTALL=1
+# Ramdisk
+# -------
 
-# whether to remove setup files (/FACTORY/site) when done
+# The site customization allows to reserve a small amount of system memory
+# for use as a disk-like mount to store log files and volatile user data
+# that will be wiped on every boot.
+
+# Create and mount the ramdisk at /ram?
+OFEAT_RAMDISK=1
+
+# Create per-user directories for root
+# and all users with an uid >= 1000 in /ram/users/?
+#
+#   Only users existing during install.site will be considered,
+#   this includes root, the login user (OCONF_LOGIN_USER)
+#   and the unprivileged user (OCONF_UNPRIV_USER).
+#
+#   Depends on OFEAT_RAMDISK.
+OFEAT_RAMDISK_USERDIR=1
+
+# Create /ram/log/messages and set up log rotation for it?
+#
+#   Note that redirections of log messages to that file
+#   must be configured separately (and manually) in syslog.conf(5).
+#
+#   Depends on OFEAT_RAMDISK.
+OFEAT_RAMDISK_LOG=1
+
+
+# SSH Server
+# ----------
+
+# Whether to generate /etc/ssh/sshd_config from template
+#
+#   Basic configuration,
+#   only the login user will be allowed to log in (OCONF_LOGIN_USER).
+OFEAT_SSHD_CONFIG=1
+
+
+# Hardware Quirks
+# ---------------
+
+# feature: force-sync hardware clock during installation
+#
+#   EXPERIMENTAL - this is an ugly hack that forces systohw clock sync.
+OFEAT_SYNC_HWCLOCK=0
+
+
+# Finishing Touch
+# ---------------
+
+# Whether to remove setup files (/FACTORY/site) when done
 OFEAT_AUTO_CLEANUP_FILES=1
 
-# whether to reboot after running rc.firsttime hooks
-# if requested by any hook
+# Whether to reboot after running rc.firsttime hooks
+#
+#   A reboot will only occur if it has been requested by any hook
+#   such as syspatch.
 OFEAT_AUTO_REBOOT=1
+
+
+# Network Configuration
+# ---------------------
+
+# The default hostname to use if all other means failed (REQUIRED)
+OCONF_DEFAULT_HOSTNAME='staging.local'
+
+# Whether to enable overall network configuration
+#
+#   If disabled, keep the configuration as created by the OpenBSD installer,
+#   which will preserve the replies given during install.
+OFEAT_NETCONFIG=1
+
+# Network interfaces search list
+#
+#   Only a single interface will be configured.
+#   It defaults to the interface that has a default route
+#   (typically the one used for installing OpenBSD),
+#   but in some cases that does not suffice, e.g. when installing from cdrom.
+#
+#   Then, any of the interfaces listed here will be used (on a first-hit basis).
+OCONF_NETCONFIG_GUESS_IFACE_LIST='vmx0 vio0'
+
+
+# There are three main strategies used to determine the network configuration:
+#
+# (a) current
+#     The most basic strategy just uses what is already there.
+#     This works for inet[6] address / prefix length / gateway,
+#     and is usually not reliable for setting static addresses.
+#
+# (b) MAC address of the interface plus DNS lookups
+#     This is great for configuring static addresses from minimal intel,
+#     but requires that the DNS server used during installation
+#     is under your control.
+#
+#     NOT IMPLEMENTED.
+#
+# (c) DHCPv4
+#     Queries hostname / DNS domain search and name servers
+#     from the already active DHCP lease of the interface.
+#     IPv4 only, hostname should be provided via DHCP.
+#
+# These strategies may be combined,
+# the stacking order is MAC > DHCPv4 > defaults(=current),
+# meaning that a hostname retrieved via MAC is preferred
+# over one retrieved via DHCPv4 a.s.o..
+OFEAT_NETCONFIG_BY_MAC=1
+OFEAT_NETCONFIG_BY_DHCP=1
 
 # EXPERIMENTAL FEATURE -- needs testing
 #
@@ -89,24 +254,44 @@ OFEAT_AUTO_REBOOT=1
 # This relies on knowledge about the site's networks
 # and is therefore disabled by default.
 #
+# Works best for uniform network designs
+# where the address # of the gateway / nameservers
+# can be derived from the network address using a fixed offset.
+#
+# Both OFEAT_ and OCONF_ have to be set to enable
+# a particular feature.
 
 # - Trigger dynamic network configuration on fillup_config()?
 OFEAT_NETCONFIG_DYNAMIC_AUTO=0
 
-# - IPv4 gateway
+# - Enable dynamic IPv4 gateway configuration (offset)
 OFEAT_NETCONFIG_DYNAMIC_INET_GW=0
 #OCONF_NETCONFIG_DYNAMIC_INET_GW="1"
 
-# - IPv6 gateway
+# - Enable dynamic IPv6 gateway configuration (offset)
 OFEAT_NETCONFIG_DYNAMIC_INET6_GW=0
 #OCONF_NETCONFIG_DYNAMIC_INET6_GW="f:1"
 
-# - nameservers
+# - Enable dynamic IPv4/IPv6 nameserver configuration (offset)
 OFEAT_NETCONFIG_DYNAMIC_RESOLV_NS=0
 #OCONF_NETCONFIG_DYNAMIC_INET_RESOLV_NS="2 3"
 #OCONF_NETCONFIG_DYNAMIC_INET6_RESOLV_NS="f:2 f:3"
 
 # - DNS domain search list
+#
+#   Derive search list from fully qualified system hostname,
+#   starting with the most specific domain.
+#
+#   hostname: foo.srv.fra.de.example.com
+#   --> search_list: fra.de.example.com, de.example.com
+#
+#   int CUT    - base domain label count
+#                (3 -> de.example.com)
+#   int SKIP   - number of sub labels to ignore after the hostname
+#                (1 -> ignore srv.fra.de.example.com)
+#   str APPEND  - append additional domain(s) to the search list
+#   str PREPEND - prepend additional domain(s) to the search list
+#
 OFEAT_NETCONFIG_DYNAMIC_RESOLV_SEARCH=0
 #OCONF_NETCONFIG_DYNAMIC_RESOLV_SEARCH_CUT=2
 #OCONF_NETCONFIG_DYNAMIC_RESOLV_SEARCH_SKIP=0

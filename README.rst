@@ -24,6 +24,118 @@ Limitations / TODO
 - the same ``site.tgz`` will be used for all releases and architectures
 
 
+Requirements
+============
+
+Hardware:
+
+* about 60 GiB of disk space for mirroring a single release for *amd64*
+
+
+Dependencies:
+
+* git for cloning this repo
+
+* Perl 5
+
+* BSD make (``bmake`` in Debian)
+
+* POSIX-ish shell (+ ``local``)
+
+* coreutils such as ``cp, mkdir, touch, ...``
+
+* for ``omir``:
+
+  * fully-featured ``rsync``, ``openrsync`` will not work
+
+  * cron for updating the mirror automatically
+
+  * HTTP server for hosting the mirror
+
+* for ``site``:
+
+  * tar, preferably the BSD variant (set ``GNU_TAR=1`` otherwise)
+
+* for ``site/autoinstall``:
+
+  * nothing specifically,
+    but usually a PXE server environment (DHCP / TFTP)
+
+* for ``oink``:
+
+  * operating system must be OpenBSD
+
+
+Overview
+========
+
+Directory Layout
+----------------
+
+**Scripts** meant to be run directly can be found in ``bin/``.
+These are just symlinks to ``omir-run``,
+which sets up the runtime environment, reads the main configuration
+and then calls the actual script, which lives in ``share/scripts``.
+
+Scripts reflecting on the effective configuration are built-in,
+namely ``omir-env`` and ``omir-mkenv``.
+
+**Helper scripts** are in ``share/libexec``.
+
+``share/shlib`` contains common **shell code functions**.
+
+**Configuration files** reside in ``etc`` or a subdirectory thereof.
+Unless otherwise stated, their format is plain ``<name>=<value>``:
+
+* ``<name>=<value>``: each line consists a variable name and its value, separated by an equality sign
+
+* values containing space characters must be quoted using either single or double quotes (``'<value>'``, ``"<value>"``)
+
+* quoted values will not be unescaped and may therefore not include their enclosing quoting character
+
+  Do not rely on the no-unescaping behavior, it may change in future.
+
+* multiline values are not supported
+
+* no variable expansion will occur, values are taken literally (``$FOO`` is ``$FOO``, not the value of ``FOO``)
+
+* comment lines begin with a hash key ``#`` and will be ignored
+
+* empty lines will be ignored, too
+
+Having a directory named ``obj`` in a configuration directory below ``etc`` will screw things up.
+
+The main configuration file is ``etc/omir.env`` (may be renamed in future).
+Keep *your* modifications in ``<config_file>.local`` (e.g. ``etc/omir.env.local``).
+
+Some features have their own directories:
+
+* ``site``:
+
+  * ``etc/site``: configuration
+
+  * ``site``: directory for building the *site* tarball
+
+  * ``site/rootfs``: skeleton for the *site* tarball
+
+* ``site/autoinstall``:
+
+  * ``etc/site``: configuration
+
+  * ``etc/site/profiles``: ``install.conf`` profiles configuration
+
+  * ``site/autoinstall``: build directory
+
+  * ``site/autoinstall/src``: ``install.conf`` generator code
+
+* ``oink``:
+
+  * ``share/oink/hooks``: ramdisk modification scripts
+
+  * ``share/oink/files``: additional files for building the ramdisk such as scripts, kernel config, ...
+
+
+
 Setup
 =====
 
@@ -44,6 +156,9 @@ see ``./etc/site/examples/profiles`` for examples.
 
 Mirror
 ======
+
+Create the mirror directory ``MIRROR_ROOT`` (default: ``/data/mirror``) first,
+and grant the mirror user write access to it.
 
 Run ``./bin/omir-update`` to sync,
 which will fetch release files and packages as well as firmware files
