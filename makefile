@@ -18,17 +18,17 @@ mkenv: ${S}/etc/omir.mkenv
 
 PHONY += init
 init: ${S}/etc/omir.mkenv
-	make -C ${S}/bin/
-	make -C ${S}/etc/site/ init
+	${MAKE} -C ${S}/bin/
+	${MAKE} -C ${S}/etc/site/ init
 
 PHONY += site
 site: ${S}/etc/omir.mkenv
-	make -C ${S}/site/
+	${MAKE} -C ${S}/site/
 
 
 PHONY += autoinstall
 autoinstall: ${S}/etc/omir.mkenv
-	make -C ${S}/site/autoinstall/ setup
+	${MAKE} -C ${S}/site/autoinstall/ setup
 
 MKENV_SRC :=
 MKENV_SRC += ${S}/etc/omir.env
