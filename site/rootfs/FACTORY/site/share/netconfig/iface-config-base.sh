@@ -19,8 +19,12 @@ iface_zap_config() {
 }
 
 
-iface_configured() {
+iface_has_any_addr() {
 	[ -n "${iface_inet_addr}" ] || \
-	[ -n "${iface_inet6_addr}" ] || \
-	[ "${iface_inet6_autoconf:-0}" -eq 1 ]
+	[ -n "${iface_inet6_addr}" ]
+}
+
+
+iface_configured() {
+    iface_has_any_addr || [ "${iface_inet6_autoconf:-0}" -eq 1 ]
 }
