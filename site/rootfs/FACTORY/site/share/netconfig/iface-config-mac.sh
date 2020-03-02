@@ -129,7 +129,7 @@ iface_conf_by_mac__bootstrap_any_inet() {
 
 
     # get vx_addr (required - abort if not found)
-    if "${f_lookup}" "${iface_hostname}"; then
+    if ! "${f_lookup}" "${iface_hostname}"; then
         print_info "conf-by-mac: ${iface_hostname} has no ${addr_type} record"
         return 2
     fi
