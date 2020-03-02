@@ -57,26 +57,38 @@ _dig_lookup_ptr() {
 
 # FIXME: filter returned value
 dig_lookup_a() {
-    v0="$( _dig_lookup_a "${@}" | grep -E -- '^[0-9]' | tail -n 1)"
+    v0="$( _dig_lookup_a "${@}" | __dig_filter_inet | __dig_filter_last )"
 
     [ -n "${v0}" ]
 }
 
 # FIXME: filter returned value
 dig_lookup_aaaa() {
-    v0="$( _dig_lookup_aaaa "${@}" | grep -E -- '^[0-9a-fA-F]' | tail -n 1)"
+    v0="$( _dig_lookup_aaaa "${@}" | __dig_filter_inet6 | __dig_filter_last )"
 
     [ -n "${v0}" ]
 }
 
 dig_lookup_cname() {
-    v0="$( _dig_lookup_cname "${@}" | tail -n 1)"
+    v0="$( _dig_lookup_cname "${@}" | __dig_filter_strip_dot | __dig_filter_last )"
 
     [ -n "${v0}" ]
 }
 
 dig_lookup_ptr() {
-    v0="$( _dig_lookup_ptr "${@}" | sed -r -e 's=[.]$==' | tail -n 1)"
+    v0="$( _dig_lookup_ptr "${@}" | __dig_filter_strip_dot | __dig_filter_last )"
 
     [ -n "${v0}" ]
 }
+
+# @stdio __dig_filter_last()
+__dig_filter_last() { grep -q -- '.' | tail -n 1; }
+
+# @stdio __dig_filter_strip_dot() {
+__dig_filter_strip_dot() { sed -r -e 's=[.]$=='; }
+
+# @stdio __dig_filter_inet()
+__dig_filter_inet() { grep -E -- '^[0-9]'; }
+
+# @stdio __dig_filter_inet6()
+__dig_filter_inet6() { grep -E -- '^[0-9a-fA-F]'; }
