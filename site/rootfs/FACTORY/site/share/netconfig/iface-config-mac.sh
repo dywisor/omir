@@ -16,6 +16,7 @@ iface_conf_by_mac() {
     iface_conf_by_mac__bootstrap_inet || :
     iface_conf_by_mac__bootstrap_inet6 || :
 
+    iface_fillup_config_from_cur
     iface_configured
 }
 
