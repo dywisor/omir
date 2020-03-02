@@ -82,7 +82,7 @@ dig_lookup_ptr() {
 }
 
 # @stdio __dig_filter_last()
-__dig_filter_last() { grep -q -- '.' | tail -n 1; }
+__dig_filter_last() { grep -- '.' | tail -n 1; }
 
 # @stdio __dig_filter_strip_dot() {
 __dig_filter_strip_dot() { sed -r -e 's=[.]$=='; }
