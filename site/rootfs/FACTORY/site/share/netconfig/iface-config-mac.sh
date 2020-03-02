@@ -58,7 +58,7 @@ iface_conf_by_mac__bootstrap_host() {
 # iface_conf_by_mac__print_lookup_key ( mac_addr, **OCONF~ )
 iface_conf_by_mac__print_lookup_key() {
     netconf-mac-key \
-        -t "${OCONF_NETCONFIG_BY_MAC_LOOKUP_KEY:-default}" \
+        -m "${OCONF_NETCONFIG_BY_MAC_LOOKUP_KEY:-default}" \
         -d "${OCONF_NETCONFIG_BY_MAC_LOOKUP_ZONE}" \
         "${@}"
 }
