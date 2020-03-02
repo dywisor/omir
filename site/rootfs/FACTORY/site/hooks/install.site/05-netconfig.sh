@@ -17,7 +17,12 @@ have_config=0
 iface_zap_config
 while [ ${#} -gt 0 ] && [ ${have_config} -eq 0 ]; do
 	if [ "${1}" -eq 1 ]; then
-		"${2}" && have_config=1 || iface_zap_config
+		if "${2}"; then
+			have_config=1
+			print_info "Using interface configuration from ${2}"
+		else
+			iface_zap_config
+		fi
 	fi
 	shift 2
 done

@@ -1,13 +1,5 @@
 #!/bin/sh
 
-lookup_ptr() {
-	# yikes
-	v0="$( host -W 5 -t PTR "${1}" | awk '($NF !~ "^[0-9]") { print $NF; exit; }' )"
-	v0="${v0%.}"
-
-	[ -n "${v0}" ]
-}
-
 iface_get_hostname_from_ptr() {
 	local v0
 	local hname4
@@ -15,12 +7,12 @@ iface_get_hostname_from_ptr() {
 
 	hname4=
 	if [ -n "${iface_inet_addr}" ]; then
-		lookup_ptr "${iface_inet_addr}" && hname4="${v0}"
+		dig_lookup_ptr "${iface_inet_addr}" && hname4="${v0}"
 	fi
 
 	hname6=
 	if [ -n "${iface_inet6_addr}" ]; then
-		lookup_ptr "${iface_inet6_addr}" && hname6="${v0}"
+		dig_lookup_ptr "${iface_inet6_addr}" && hname6="${v0}"
 	fi
 
 	if [ -n "${hname4}" ]; then

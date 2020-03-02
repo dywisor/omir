@@ -13,6 +13,7 @@ all: site.tgz
 	${OMIR_BIN_DIR}/omir-run omir-publish-site ./site.tgz
 
 site.tgz: \
+	${FACTORY_SITE}/bin/netconf-mac-key \
 	${FACTORY_SITE}/etc/conf.sh \
 	${FACTORY_SITE}/etc/localconf.sh \
 	${FACTORY_SITE}/etc/conf.d/99-local.sh \
@@ -28,6 +29,12 @@ site.tgz: \
 	gzip -c < ${@}.make_tmp.tar > ${@}.make_tmp
 	rm -f -- ${@}.make_tmp.tar
 	mv -f -- ${@}.make_tmp ${@}
+
+${FACTORY_SITE}/bin:
+	mkdir -p -- ${@}
+
+${FACTORY_SITE}/bin/netconf-mac-key: ${OMIR_LIBEXEC}/netconf-mac-key
+	install -m 0755 -- ${OMIR_LIBEXEC}/netconf-mac-key ${@}
 
 ${FACTORY_SITE}/etc:
 	mkdir -p -- ${@}
