@@ -32,6 +32,7 @@ _dig_lookup() {
     [ -n "${1-}" ] || return 64
     arg="${1%.}"; shift
     [ -n "${arg}" ] || return 64
+    arg="${arg}."
 
     [ $# -eq 0 ] || return 64
 
