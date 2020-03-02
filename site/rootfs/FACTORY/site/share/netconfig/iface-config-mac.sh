@@ -5,18 +5,14 @@ iface_conf_by_mac() {
 
     iface_conf_by_mac__bootstrap_host || return ${?}
 
-    # Fill out resolv search list if dynamic config is disabled
-    if \
-        [ "${OFEAT_NETCONFIG_DYNAMIC_AUTO:-0}" -ne 1 ] && \
-        [ "${OFEAT_NETCONFIG_DYNAMIC_RESOLV_SEARCH:-0}" -ne 1 ]
-    then
-        iface_resolv_search="${lookup_domain}"
-    fi
-
     iface_conf_by_mac__bootstrap_inet || :
     iface_conf_by_mac__bootstrap_inet6 || :
 
     iface_fillup_config_from_cur
+
+    # Fill out resolv search list if dynamic config is disabled/failed
+    : "${iface_resolv_search:=${lookup_domain}}"
+
     iface_configured
 }
 
