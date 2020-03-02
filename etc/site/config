@@ -228,8 +228,6 @@ OCONF_NETCONFIG_GUESS_IFACE_LIST='vmx0 vio0'
 #     but requires that the DNS server used during installation
 #     is under your control.
 #
-#     IN PROGRESS.
-#
 # (c) DHCPv4
 #     Queries hostname / DNS domain search and name servers
 #     from the already active DHCP lease of the interface.
