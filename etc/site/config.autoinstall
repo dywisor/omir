@@ -1,0 +1,148 @@
+# install.conf Configuration
+# ==========================
+#
+# In addition to the site configuration (./config),
+# this file will be used for generating autoinstall answer files.
+#
+# Rather than changing variables here,
+# write your modifications to either
+# (a) config.autoinstall.local:  global configuration
+# (b) profiles/<name>: profile-specific configuration
+#
+# Note that answer files will only be generated
+# for each profile found in profiles/ (including subdirectories),
+# so make sure to create files there - even if they are empty.
+# This file alone is not sufficient.
+#
+# Most install-only options are namespaced (OCONF_INSTALL_ / OFEAT_INSTALL_).
+# See ./config for a detailed description about OFEAT/OCONF.
+#
+
+
+# User Accounts
+# -------------
+#
+# You may set a password and/or an allowed OpenSSH public key
+# here for logging in as login user or root.
+#
+# Only a single SSH key may be configured per user.
+#
+# The password may be a password hash,
+# empty for password login disabled (still allowing ssh key-based auth)
+# or a plain-text passphrase.
+#  
+# Plain-text passphrases will be hashed with encrypt(1) when generating
+# the autoinstall answer file, which is supported on OpenBSD systems only.
+#
+# The answer file generator tries to detect invalid configurations
+# to prevent unable-to-login situations, but do not rely on that.
+
+# SSH public key for root
+#
+#  If unset, root may not login via SSH.
+#
+#  Note that site.tgz sshd configuration (OFEAT_SSHD_CONFIG)
+#  will lock down SSH to the login user only,
+#  rendering this option useless.
+#
+#OCONF_INSTALL_ROOT_SSH_PUB_KEY='ssh-rsa ...'
+
+# Password for root
+#
+#  Required unless doas has been configured for the login user.
+#  (doas is TODO)
+#
+#OCONF_INSTALL_ROOT_PASS=''
+
+# SSH public key for the login user
+#
+#  If unset, the login user may still login via SSH using password auth.
+#
+#OCONF_INSTALL_LOGIN_USER_SSH_PUB_KEY='ssh-rsa ...'
+
+# Password for the login user
+#
+#  Optional.
+#
+#OCONF_INSTALL_LOGIN_USER_PASS=''
+
+
+# Installation Environment
+# ------------------------
+
+# Name server(s) to use during installation
+#OCONF_INSTALL_NS='198.51.100.2'
+
+# HTTP proxy server
+#
+#   FIXME: candidate for site.tgz
+#
+#OCONF_HTTP_PROXY='198.51.100.5'
+
+# Network Interface to use during installation
+#
+#  Not strictly required when PXE-booted.
+#
+#OCONF_INSTALL_IFACE='em0'
+
+
+# Disk Partitioning
+# -----------------
+
+# disk device
+#OCONF_INSTALL_DISK_DEV='sd0'
+
+# URL of the autopartitioning template for disklabel
+#
+#  If unset, use the default built-in template.
+#
+#OCONF_INSTALL_DISKLABEL_URL='https://your/template/here'
+
+
+# System Configuration
+# --------------------
+
+# Serial Console
+#
+#  Whether to use com0 as default console
+#
+#OFEAT_CONSOLE_COM=0
+
+# Keyboard Layout
+#
+#  Defaults to 'us'.
+#
+#OCONF_KBD_LAYOUT='us'
+
+# Timezone
+#
+#  Defaults to 'Europe/Berlin'.
+#OCONF_TIMEZONE='UTC'
+
+# Whether to enable the 'X Window System'
+# (file sets + 'Do you expect to run the X Window System?')
+#OFEAT_DESKTOP=0
+
+# Whether to install games
+#OFEAT_GAMES=0
+
+# Whether to install site.tgz customizations
+#
+#  Enabled by default if a local OpenBSD mirror has been configured
+#  (OCONF_INSTALLURL_LOCAL) and disabled otherwise.
+#
+#OFEAT_INSTALL_SITE=0
+
+
+# Automatic Variables - DO NOT EDIT
+# ---------------------------------
+#
+# These vars are set by the makefile
+# when generating autoinstall answer files.
+
+# Target System Architecture
+#OCONF_INSTALL_ARCH='amd64'
+
+# Target System OpenBSD release version (full, short)
+#OCONF_INSTALL_RELEASE='6.x'
+#OCONF_INSTALL_RELEASE_SHORT='6x'

@@ -88,16 +88,12 @@ OCONF_PKG_INSTALL="rsync-- vim--no_x11"
 
 # login user (REQUIRED)
 #
-#  Specify the user name and its password here, the uid will be 1000.
-#  The password may be a password hash,
-#  empty for password login disabled (still allowing ssh key-based auth)
-#  or a plain-text passphrase.
+#  Specify the user name here, the uid will be 1000.
 #
-#  Plain-text passphrases will be hashed with encrypt(1) when generating
-#  the autoinstall answer file, which is supported on OpenBSD systems only.
+#  The passphrase is configured in 'config.autoinstall' (OCONF_INSTALL_LOGIN_USER_PASS).
+#  Do not set it here, as it would otherwise be included as-is in the site.tgz file.
 #
 OCONF_LOGIN_USER='cosmo'
-#OCONF_LOGIN_USER_PASS='secret'
 
 # unprivileged user
 #
