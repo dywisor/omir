@@ -28,3 +28,17 @@ iface_has_any_addr() {
 iface_configured() {
     iface_has_any_addr || [ "${iface_inet6_autoconf:-0}" -eq 1 ]
 }
+
+
+iface_add_resolv_ns() {
+    local text
+
+    text="${*}"
+    [ -n "${text}" ] || return 1
+
+    if [ -n "${iface_resolv_ns}" ]; then
+        iface_resolv_ns="${iface_resolv_ns} ${text}"
+    else
+        iface_resolv_ns="${text}"
+    fi
+}
