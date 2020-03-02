@@ -120,7 +120,7 @@ if [ -n "${iface_resolv_ns}" ]; then
 	print_action "resolv.conf"
 	{
 		printf 'lookup file bind\n'
-		printf 'search %s\n' "${iface_resolv_search}"
+		[ -z "${iface_resolv_search}" ] || printf 'search %s\n' "${iface_resolv_search}"
 		printf 'nameserver %s\n' ${iface_resolv_ns}  # implicit loop
 	} > /etc/resolv.conf.site
 	autodie test -s /etc/resolv.conf.site
