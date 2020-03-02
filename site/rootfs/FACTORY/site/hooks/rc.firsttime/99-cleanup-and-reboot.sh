@@ -27,6 +27,7 @@ add_reboot_code() {
 run_cleanup_code=1
 cleanup_code="${cleanup_code}
 rm -f -- /etc/rc.firsttime.run
+sync
 reboot
 "
 }
