@@ -22,7 +22,9 @@ FACTORY_SITE_ETC       = ${FACTORY_SITE}/etc
 FACTORY_SITE_ETC_CONFD = ${FACTORY_SITE_ETC}/conf.d
 
 SITE_INSTALL_LIBEXEC =
+SITE_INSTALL_LIBEXEC += derive-ip-addr
 SITE_INSTALL_LIBEXEC += netconf-mac-key
+SITE_INSTALL_LIBEXEC += netmask-hex-to-dot
 
 
 # FIXME: hardcoded env path
