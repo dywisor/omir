@@ -178,6 +178,9 @@ Site Tarball
 Run ``make -C site/``, which will build the ``site.tgz`` file
 and publish it to all known releases and architectures.
 
+To include additional files in the tarball,
+put them in ``site/local/rootfs/base/``.
+
 
 autoinstall
 ===========
