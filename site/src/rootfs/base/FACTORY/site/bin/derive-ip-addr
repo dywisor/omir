@@ -10,8 +10,8 @@
 #   derive-ip-addr -4|-6 base_addr netmask|prefixlen {arg}
 # 
 # Example:
-#   The following commands will be print the nameserver addresses
-#   to stdout, aAssuming that the second and third host address
+#   The following commands will print the nameserver addresses
+#   to stdout, assuming that the second and third host address
 #   in your IPv4 networks provide DNS:
 #
 #     derive-ip-addr -4 203.0.113.29 /24 2 3
