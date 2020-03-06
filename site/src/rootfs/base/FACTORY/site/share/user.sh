@@ -53,7 +53,7 @@ eval_user_funcs() {
 }
 
 
-# _create_user ( user_name, uid, shell=/sbin/nologin )
+# _create_user ( user_name, uid, shell:=/sbin/nologin )
 _create_user() {
 	local user_name
 	local uid
@@ -61,9 +61,9 @@ _create_user() {
 
 	user_name="${1:?}"
 	uid="${2:?}"
-	shell='/sbin/nologin'
+	shell="${3:-/sbin/nologin}"
 
-	if ! grep -q -- "^${user_name}\:" /etc/passwd; then
+	if ! check_user_exists "${user_name}"; then
 		autodie useradd -g =uid -s "${shell}" -d "/home/${user_name}" -m -u "${uid}" "${user_name}"
 	fi
 
