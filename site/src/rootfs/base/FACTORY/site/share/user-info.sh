@@ -1,5 +1,13 @@
 #!/bin/sh
 
+# check_valid_user_name ( name )
+#
+#  Strict user name checker, will only allow lowercase letters.
+#
+check_valid_user_name() {
+    printf '%s' "${1}" | grep -qE -- '^[a-z]+$'
+}
+
 get_pwhash_disabled() {
     v0='*************'
 }
