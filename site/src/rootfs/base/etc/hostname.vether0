@@ -1,0 +1,29 @@
+description "blackhole"
+group blackhole
+
+inet 172.31.0.0/32
+
+!route add -blackhole -inet -net 10.0.0.0/8 172.31.0.0
+!route add -blackhole -inet -net 172.16.0.0/12 172.31.0.0
+!route add -blackhole -inet -net 192.168.0.0/16 172.31.0.0
+
+!route add -blackhole -inet -net 0.0.0.0/8 172.31.0.0
+!route add -blackhole -inet -net 100.64.0.0/10 172.31.0.0
+!route add -blackhole -inet -net 169.254.0.0/16 172.31.0.0
+!route add -blackhole -inet -net 192.0.0.0/24 172.31.0.0
+!route add -blackhole -inet -net 192.0.2.0/24 172.31.0.0
+!route add -blackhole -inet -net 198.18.0.0/15 172.31.0.0
+!route add -blackhole -inet -net 198.51.100.0/24 172.31.0.0
+!route add -blackhole -inet -net 203.0.113.0/24 172.31.0.0
+!route add -blackhole -inet -net 224.0.0.0/3 172.31.0.0
+
+inet6 fd00::/128
+
+#!route add -blackhole -inet6 -net ::/128 fd00::
+#!route add -blackhole -inet6 -net ::ffff:0:0/96 fd00::
+!route add -blackhole -inet6 -net 100::/64 fd00::
+!route add -blackhole -inet6 -net 2001::/23 fd00::
+!route add -blackhole -inet6 -net 2001:db8::/32 fd00::
+!route add -blackhole -inet6 -net 2002::/16 fd00::
+!route add -blackhole -inet6 -net fc00::/7 fd00::
+!route add -blackhole -inet6 -net ff00::/8 fd00::
