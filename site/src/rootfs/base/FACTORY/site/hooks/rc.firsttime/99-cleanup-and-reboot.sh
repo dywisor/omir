@@ -59,26 +59,26 @@ use POSIX ();
 
 my \$pid = fork;
 if ( \$pid < 0 ) {
-       exit 1;
+    exit 1;
 } elsif ( \$pid > 0 ) {
-       exit 0;
+    exit 0;
 } else {
-       my \$devnull = \"/dev/null\";
-       my @cmdv = ( \"shutdown\", \"-r\", \"now\" );
+    my \$devnull = \"/dev/null\";
+    my @cmdv = ( \"shutdown\", \"-r\", \"now\" );
 
-       POSIX::setsid or warn;
+    POSIX::setsid or warn;
 
-       close STDIN;
-       open STDIN, \"<\", \$devnull;
+    close STDIN;
+    open STDIN, \"<\", \$devnull;
 
-       close STDOUT;
-       open STDOUT, \">>\", \$devnull;
+    close STDOUT;
+    open STDOUT, \">>\", \$devnull;
 
-       close STDERR;
-       open STDERR, \">&STDOUT\";
+    close STDERR;
+    open STDERR, \">&STDOUT\";
 
-       sleep ${delay};
-       exec @cmdv;
+    sleep ${delay};
+    exec @cmdv;
 }
 '
 "
