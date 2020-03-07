@@ -7,13 +7,23 @@ _user_add_file() {
 
 	local user_name
 	local src
+	local dst_rel
 
 	user_name="${1:?}"
 
 	src="${2:?}"
-	dst="/home/${user_name}/${3:-${2##*/}}"
+	dst_rel="${3:-${2##*/}}"
+	dst_rel="${dst_rel#/}"
+	dst="/home/${user_name}/${dst_rel}"
 
-	autodie install -D -m 0640 -g "${user_name}" -o "${user_name}" -- "${src}" "${dst}"
+	case "${dst_rel}" in
+		*/*)
+			# bogus relpath -> don't care.
+			autodie install -d -g "${user_name}" -o "${user_name}" -- "${dst%/*}"
+		;;
+	esac
+
+	autodie install -m 0640 -g "${user_name}" -o "${user_name}" -- "${src}" "${dst}"
 }
 
 
@@ -22,9 +32,19 @@ root_add_file() {
 	dst=''
 
 	local src
+	local dst_rel
 
 	src="${1:?}"
-	dst="/root/${2:-${1##*/}}"
+	dst_rel="${2:-${1##*/}}"
+	dst_rel="${dst_rel#/}"
+	dst="/root/${dst_rel}"
+
+	case "${dst_rel}" in
+		*/*)
+			# bogus relpath -> don't care.
+			autodie install -d -g wheel -o root -- "${dst%/*}"
+		;;
+	esac
 
 	autodie install -D -m 0640 -g wheel -o root -- "${src}" "${dst}"
 }
