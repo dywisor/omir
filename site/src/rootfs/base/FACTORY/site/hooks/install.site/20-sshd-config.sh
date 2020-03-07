@@ -57,6 +57,6 @@ print_action "Generate SSH server configuration"
 
 autodie dodir /etc/ssh
 
-dofile \
+dofile_site \
     '/etc/ssh/sshd_config' 0600 'root:wheel' \
     gen_sshd_config
