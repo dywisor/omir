@@ -19,6 +19,7 @@ load_lib site-dofile
 load_lib site-cc
 load_lib user-info
 load_lib user-mgmt-add
+load_lib user-mgmt-del
 load_lib user
 load_lib pkg
 load_lib git
