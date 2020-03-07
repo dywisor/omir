@@ -1,0 +1,29 @@
+AllowUsers @@ALLOW_USERS@@
+PermitRootLogin no
+
+AuthenticationMethods publickey
+PasswordAuthentication no
+ChallengeResponseAuthentication no
+PubkeyAuthentication yes
+
+AuthorizedKeysFile .ssh/authorized_keys
+
+DisableForwarding yes
+GatewayPorts no
+PermitTunnel no
+
+PermitTTY yes
+PermitUserEnvironment no
+PermitUserRC no
+
+Banner none
+PrintLastLog no
+PrintMotd no
+
+TCPKeepAlive yes
+UseDNS no
+
+Subsystem sftp internal-sftp
+
+Match User @@LOGIN_USER@@
+    AuthorizedKeysFile /etc/ssh/authorized_keys.ctrl

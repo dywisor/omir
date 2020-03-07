@@ -1,4 +1,5 @@
 #!/bin/sh
+[ "${OFEAT_LOGIN_USER:-0}" -eq 1 ] || exit 0
 [ -n "${OCONF_LOGIN_USER-}" ] || exit 0
 
 print_action "fixup home dir of user ${OCONF_LOGIN_USER}"

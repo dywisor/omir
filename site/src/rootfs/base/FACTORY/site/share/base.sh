@@ -72,3 +72,34 @@ load_mode_lib() {
 		shift
 	done
 }
+
+
+_get_factory_path() {
+	v0=
+
+	if [ -n "${2-}" ] && [ -n "${1-}" ]; then
+		v0="${1}/${2}"
+		return 0
+	else
+		return 1
+	fi
+}
+
+
+_locate_factory_path() {
+	_get_factory_path "${@}" || return 1
+	[ -f "${v0}" ]
+}
+
+
+locate_factory_file() {
+	_locate_factory_path "${FACTORY_SITE_FILES}" "${@}"
+}
+
+locate_factory_template() {
+	_locate_factory_path "${FACTORY_SITE_TEMPLATES}" "${@}"
+}
+
+locate_factory_src() {
+	_locate_factory_path "${FACTORY_SITE_SRC}" "${@}"
+}

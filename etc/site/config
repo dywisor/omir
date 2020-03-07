@@ -70,6 +70,9 @@ OFEAT_PKG_INSTALL=1
 # List of packages to be installed
 OCONF_PKG_INSTALL="rsync-- vim--no_x11"
 
+# feature: Whether to install latest Python 3
+OFEAT_PKG_PYTHON_LATEST=0
+
 
 # User Accounts
 # -------------
@@ -93,6 +96,10 @@ OCONF_PKG_INSTALL="rsync-- vim--no_x11"
 #  The passphrase is configured in 'config.autoinstall' (OCONF_INSTALL_LOGIN_USER_PASS).
 #  Do not set it here, as it would otherwise be included as-is in the site.tgz file.
 #
+#  Alternatively, you may disable the login user (OFEAT_LOGIN_USER=0).
+#  This will remove it from the system, possibly rendering you unable to log in.
+#
+OFEAT_LOGIN_USER=1
 OCONF_LOGIN_USER='cosmo'
 
 # unprivileged user
@@ -105,6 +112,35 @@ OCONF_LOGIN_USER='cosmo'
 #
 OCONF_UNPRIV_USER='wanda'
 OCONF_UNPRIV_UID='1001'
+
+# control user
+#  You may optionally configure a user for automated control purposes
+#  (configuration management / orchestration, e.g. Ansible).
+#
+#  The user will be granted doas privileges in NOPASS mode.
+#
+#  The home directory will be empty.
+#
+#  This user will be able to log in via SSH with public keys only.
+#  Public keys are managed in /etc/ssh/authorized_keys.ctrl.
+#  They will be copied from <FACTORY>/files/authorized_keys.ctrl,
+#  you may also configure a single key here.
+#
+#  SSH access can be further restricted to select hosts
+#  (IP addresses and/or network).
+#
+#  Notes:
+#    - doas(1) will be configured for that user only,
+#      overriding any other configuration
+#    - will unconditionally enable sshd configuration
+#    - ssh logins will be restricted to the ctrl user
+#      (this may be configurable in future)
+#
+OFEAT_CTRL_USER=0
+OCONF_CTRL_USER='ctrl'
+OCONF_CTRL_UID='999'
+OCONF_CTRL_SSH_KEY=''
+OCONF_CTRL_SSH_FROM=''
 
 
 # Git
