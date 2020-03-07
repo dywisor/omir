@@ -8,5 +8,6 @@ dofile_site() {
     dst="${1:?}"; shift
 
     dofile "${dst}.site" "${@}" || return
+    [ -s "${dst}.site" ] || return
     site_prep "${dst}" || return
 }
