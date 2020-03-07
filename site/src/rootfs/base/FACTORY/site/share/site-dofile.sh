@@ -1,6 +1,8 @@
 
-# dofile_site ( dst, ... )
+# dofile_site ( dst, mode, owner, func, *args )
 dofile_site() {
+    [ ${#} -ge 4 ] || return
+
     local dst
 
     dst="${1:?}"; shift
