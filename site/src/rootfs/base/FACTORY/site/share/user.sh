@@ -51,21 +51,3 @@ eval_user_funcs() {
 		shift
 	done
 }
-
-
-# _create_user ( user_name, uid, shell:=/sbin/nologin )
-_create_user() {
-	local user_name
-	local uid
-	local shell
-
-	user_name="${1:?}"
-	uid="${2:?}"
-	shell="${3:-/sbin/nologin}"
-
-	if ! check_user_exists "${user_name}"; then
-		autodie useradd -g =uid -s "${shell}" -d "/home/${user_name}" -m -u "${uid}" "${user_name}"
-	fi
-
-	eval_user_funcs "${user_name}"
-}

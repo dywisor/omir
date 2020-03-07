@@ -38,25 +38,10 @@ gen_ctrl_doas_conf() {
         "${user_name}"
 }
 
-
-if ! get_user_info "${OCONF_CTRL_USER}"; then
-    # useradd
-    print_action "Create user ${OCONF_CTRL_USER}"
-    autodie get_pwhash_disabled
-    autodie useradd \
-        -u "${OCONF_CTRL_UID}" \
-        -g '=uid' \
-        -s '/bin/sh' \
-        -p "${v0:?}" \
-        -d "/home/${OCONF_CTRL_USER}" \
-        "${OCONF_CTRL_USER}"
-
-    autodie get_user_info "${OCONF_CTRL_USER}"
-fi
-
-DIRMODE=0700
-autodie dodir "${user_home}"
-autodie dopath "${user_home}" 0700 "${user_uid}:${user_gid}"
+autodie create_user_empty_home \
+    "${OCONF_CTRL_USER}" \
+    "${OCONF_CTRL_UID}" \
+    '/bin/sh'
 
 autodie dofile_site "${ssh_auth_keys}" 0640 "root:${user_name}" gen_ctrl_ssh_auth_keys
 
