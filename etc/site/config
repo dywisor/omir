@@ -226,7 +226,7 @@ OFEAT_AUTO_REBOOT=1
 
 # Optionally delay the reboot
 OFEAT_AUTO_REBOOT_DELAY=0
-#OCONF_AUTO_REBOOT_DELAY='+2'
+#OCONF_AUTO_REBOOT_DELAY='60'
 
 
 # Network Configuration

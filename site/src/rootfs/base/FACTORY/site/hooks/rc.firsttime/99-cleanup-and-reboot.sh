@@ -36,10 +36,51 @@ reboot
 }
 
 add_delayed_reboot_code() {
+    local delay
+    if [ -z "${1-}" ]; then
+        delay=60
+
+    elif [ "${1}" -gt 0 ]; then
+        delay="${1}"
+
+    else
+        print_err "Invalid delay: ${1}, defaulting."
+        delay=60
+    fi
 
 run_cleanup_code=1
 cleanup_code="${cleanup_code}
-shutdown -r '${1:?}'
+perl -e '
+use strict;
+use warnings;
+use feature qw( say );
+
+use POSIX ();
+
+my \$pid = fork;
+if ( \$pid < 0 ) {
+       exit 1;
+} elsif ( \$pid > 0 ) {
+       exit 0;
+} else {
+       my \$devnull = \"/dev/null\";
+       my @cmdv = ( \"shutdown\", \"-r\", \"now\" );
+
+       POSIX::setsid or warn;
+
+       close STDIN;
+       open STDIN, \"<\", \$devnull;
+
+       close STDOUT;
+       open STDOUT, \">>\", \$devnull;
+
+       close STDERR;
+       open STDERR, \">&STDOUT\";
+
+       sleep ${delay};
+       exec @cmdv;
+}
+'
 "
 }
 
@@ -52,8 +93,10 @@ if [ "${OFEAT_AUTO_REBOOT:-0}" -eq 1 ] && [ -e "${AUTO_REBOOT_FLAG_FILE}" ]; the
 	if ! rm -- "${AUTO_REBOOT_FLAG_FILE}"; then
 		print_err "Could not remove auto-reboot flag file, will not reboot."
 	elif [ "${OFEAT_AUTO_REBOOT_DELAY:-0}" -eq 1 ]; then
-		add_delayed_reboot_code "${OCONF_AUTO_REBOOT_DELAY:-+2}"
+		print_info "Adding delayed reboot code"
+		add_delayed_reboot_code "${OCONF_AUTO_REBOOT_DELAY-}"
 	else
+		print_info "Adding reboot-now code"
 		add_reboot_code
 	fi
 fi
