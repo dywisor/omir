@@ -48,6 +48,8 @@ add_delayed_reboot_code() {
         delay=60
     fi
 
+# relink check from https://github.com/openbsd/src/blob/master/usr.sbin/syspatch/syspatch.sh
+
 run_cleanup_code=1
 cleanup_code="${cleanup_code}
 perl -e '
@@ -63,8 +65,12 @@ if ( \$pid < 0 ) {
 } elsif ( \$pid > 0 ) {
     exit 0;
 } else {
+    my \$waited = 0;
+    my \$delay = ${delay};
+    my \$tick = 2;
     my \$devnull = \"/dev/null\";
-    my @cmdv = ( \"shutdown\", \"-r\", \"now\" );
+    my @reboot_cmdv = ( \"shutdown\", \"-r\", \"now\" );
+    my @check_kernel_relink_cmdv = ( \"pgrep\", \"-qxf\", \"/bin/ksh.*reorder_kernel\" );
 
     POSIX::setsid or warn;
 
@@ -77,8 +83,13 @@ if ( \$pid < 0 ) {
     close STDERR;
     open STDERR, \">&STDOUT\";
 
-    sleep ${delay};
-    exec @cmdv;
+    while ( ( \$waited < \$delay ) && ( system ( @check_kernel_relink_cmdv ) == 0 ) ) {
+        sleep \$tick;
+        \$waited += \$tick;
+    }
+
+    sleep 15;
+    exec @reboot_cmdv;
 }
 '
 "
