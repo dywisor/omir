@@ -224,6 +224,10 @@ OFEAT_AUTO_CLEANUP_FILES=1
 #   such as syspatch.
 OFEAT_AUTO_REBOOT=1
 
+# Optionally delay the reboot
+OFEAT_AUTO_REBOOT_DELAY=0
+#OCONF_AUTO_REBOOT_DELAY='+2'
+
 
 # Network Configuration
 # ---------------------
