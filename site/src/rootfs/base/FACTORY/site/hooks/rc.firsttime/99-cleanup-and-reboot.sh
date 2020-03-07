@@ -5,6 +5,7 @@ run_cleanup_code=0
 cleanup_code="
 #!/bin/sh
 set -fu
+cd /
 "
 
 add_cleanup_code() {
