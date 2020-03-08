@@ -37,15 +37,14 @@ reboot
 
 add_delayed_reboot_code() {
     local delay
-    if [ -z "${1-}" ]; then
-        delay=60
 
+    delay=600
+    if [ -z "${1-}" ]; then
+        :
     elif [ "${1}" -gt 0 ]; then
         delay="${1}"
-
     else
         print_err "Invalid delay: ${1}, defaulting."
-        delay=60
     fi
 
 # relink check from https://github.com/openbsd/src/blob/master/usr.sbin/syspatch/syspatch.sh

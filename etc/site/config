@@ -224,9 +224,18 @@ OFEAT_AUTO_CLEANUP_FILES=1
 #   such as syspatch.
 OFEAT_AUTO_REBOOT=1
 
-# Optionally delay the reboot
-OFEAT_AUTO_REBOOT_DELAY=0
-#OCONF_AUTO_REBOOT_DELAY='60'
+# Optionally delay the reboot (HIGHLY SUGGESTED)
+#
+#   If configured, wait up to 600 seconds until the bootup finishes
+#   so that reorder_kernel can complete.
+#   Afterwards, wait another 15 seconds and then trigger 'shutdown -r now'.
+#
+#   This avoids random kernel panics due to rebooting too early.
+#
+#   The delay may be adjusted with OCONF_AUTO_REBOOT_DELAY.
+#
+OFEAT_AUTO_REBOOT_DELAY=1
+#OCONF_AUTO_REBOOT_DELAY='600'
 
 
 # Network Configuration
