@@ -19,8 +19,8 @@ cleanup_code="${cleanup_code}
 mv -- /install.site.log /var/log/install.site.log
 mv -- /rc.firsttime.log /var/log/rc.firsttime.log
 
-rm -rf -- "${FACTORY_SITE}"
-rmdir -- "${FACTORY_SITE%/*}" 2>/dev/null || :
+rm -rf -- \"${FACTORY_SITE}\"
+rmdir -- \"${FACTORY_SITE%/*}\" 2>/dev/null || :
 
 rm -f -- /OMIR_VERSION
 
