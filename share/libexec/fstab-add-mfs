@@ -1,0 +1,286 @@
+#!/usr/bin/env perl
+package FstabAddMFSMain;
+
+use strict;
+use warnings;
+use feature qw( say );
+
+use Digest::SHA;
+use Getopt::Long qw(:config posix_default bundling permute );
+use File::Basename qw( basename );
+
+our $VERSION = '0.1';
+our $NAME    = 'fstab-add-mfs';
+
+
+my $usage_opts = MFSMountOptions->format_opts_usage();
+
+my $prog_name   = basename($0);
+my $short_usage = "${prog_name} ${usage_opts} [-o <options>] <mp>";
+
+
+sub main_get_opts {
+	my $opts = shift;
+
+	my @options_def = (
+		'help|h',
+		'options|o=s',
+    );
+
+    my $mfs_opts = MFSMountOptions->get_opts_parse();
+    push @options_def, @$mfs_opts;
+
+	return GetOptions($opts, @options_def);
+}
+
+
+sub main_print_help {
+	my $out = shift // *STDOUT;
+	printf {$out} "Usage: %s\n", $short_usage;
+}
+
+sub normalize_mp {
+    my $arg = shift or return;
+
+    $arg =~ s=/{2,}=/=mxg;
+    if ( $arg ne '/' ) { $arg =~ s=/$==; }
+
+    return $arg;
+}
+
+
+sub main {
+	my $arg;
+	my $mp;
+    my $mnt_opts;
+
+	# parse options
+	my $opts = {};
+
+	if ( ! main_get_opts ( $opts ) ) {
+		main_print_help(*STDERR);
+		die "Bad usage.\n";
+
+	} elsif ( $opts->{'help'} ) {
+		main_print_help();
+		exit 0;
+	}
+
+    delete $opts->{'help'};
+
+	# get mountpoint from @ARGV and normalize it
+	$arg = (shift @ARGV) or die "Missing mountpoint\n";
+    $mp = normalize_mp ( $arg ) or die;
+
+    $mnt_opts = MFSMountOptions->new();
+
+    $mnt_opts->add_str ( $opts->{'options'} ) or die;
+    delete $opts->{'options'};
+
+    $mnt_opts->add_opts_hash ( $opts ) or die;
+
+    main_add_mfs ( *STDIN, *STDOUT, $mp, $mnt_opts->get_str() ) or die;
+}
+
+sub main_add_mfs {
+    my $input_fh = shift or return;
+    my $fh = shift or return;
+    my $mfs_mp = shift or return;
+    my $mfs_opts = shift or return;
+
+    while (<$input_fh>) {
+        my $orig_line = $_;
+
+        my $line = $orig_line;
+        $line =~ s/\s+$//mx;
+
+        if ( not $line ) {
+            # pass-through
+            print {$fh} $orig_line or return;
+
+        } elsif ( $line =~ m/^[#]/mx ) {
+            # pass-through
+            print {$fh} $orig_line or return;
+
+        } else {
+            my @fields = split ' ', $line;
+            my $mp;
+
+            if ( scalar @fields > 1 ) {
+                $mp = normalize_mp ( $fields[1] );
+            }
+
+            if ( $mp && ($mp eq $mfs_mp) ) {
+                if ((scalar @fields < 3) || ($fields[2] ne 'mfs') ) {
+                    # comment out
+                    printf {$fh} "#%s", $orig_line or return;
+                }   # else DISCARD
+
+            } else {
+                # pass-through
+                print {$fh} $orig_line or return;
+            }
+        }
+    }
+
+    printf {$fh} "swap %s mfs %s 0 0\n", $mfs_mp, $mfs_opts or return;
+
+    return 1;
+}
+
+
+main();
+
+
+BEGIN {
+    package MFSMountOptions;
+
+    use strict;
+    use warnings;
+    use feature qw( say );
+
+    our $DEFAULT_OPTS = [
+        'rw',
+    ];
+
+    our $MFS_OPTS = {
+        '-b' => 'block-size',
+        '-c' => 'cfrag',
+        '-e' => 'maxbpg',
+        '-f' => 'frag-size',
+        '-i' => 'bytes',
+        '-m' => 'free-space',
+        '-P' => 'file',
+        '-s' => 'size',
+    };
+
+    # non-exhaustive list of mount options
+    my $FLIP_MOUNT_OPTS_BASE = {
+        'async' => 'sync',
+        'atime' => undef,
+        'dev'   => undef,
+        'exec'  => undef,
+        'suid'  => undef,
+        'rw'    => 'ro',
+    };
+
+    our $FLIP_MOUNT_OPTS = {};
+    foreach my $opt ( keys %$FLIP_MOUNT_OPTS_BASE ) {
+        my $val = $FLIP_MOUNT_OPTS_BASE->{$opt};
+        if ( not $val ) { $val = sprintf "no%s", $opt; }
+
+        $FLIP_MOUNT_OPTS->{$opt} = $val;
+        $FLIP_MOUNT_OPTS->{$val} = $opt;
+    }
+
+    # @classmethod
+    sub format_opts_usage {
+        my $class = shift;
+        my $opts_def = $MFS_OPTS;
+        my $usage_opts = join " ", map { sprintf "[%s <%s>]", $_, $opts_def->{$_}; } (sort keys %$opts_def);
+
+        return $usage_opts;
+    }
+
+    # @classmethod
+    sub get_opts_parse {
+        my @ret;
+        foreach my $opt ( sort keys %$MFS_OPTS ) {
+            push @ret, (sprintf "%s|%s=s", $opt, $MFS_OPTS->{$opt});
+        }
+
+        return \@ret;
+    }
+
+    sub new {
+        my $called = shift;
+        my $class = (ref $called) || $called;
+
+        my $self = bless {}, $class;
+        $self->init(@_) or return;
+        return $self;
+    }
+
+    sub init {
+        my $self = shift;
+
+        foreach my $opt ( @$DEFAULT_OPTS ) {
+            $self->add ( $opt ) or return;
+        }
+
+        return 1;
+    }
+
+    sub add {
+        my $self = shift;
+        my $opt = shift or return;
+        my $val = shift;
+
+        my $flip_opt = $FLIP_MOUNT_OPTS->{$opt};
+        if ( $flip_opt ) {
+            delete $self->{$flip_opt};
+        }
+
+        $self->{$opt} = $val;
+        return 1;
+    }
+
+    sub add_str {
+        my $self = shift;
+        my $arg = shift;
+
+        if ( $arg ) {
+            foreach my $opt ( grep { $_; } split ',', $arg ) {
+                if ( $opt =~ m/^(\S+)=(.*)$/mx ) {
+                    $self->add ( $1, $2 ) or return;
+
+                } else {
+                    $self->add ( $opt ) or return;
+                }
+            }
+        }
+
+        return 1;
+    }
+
+    sub add_opts_hash {
+        my $self = shift;
+        my $opts = shift or return;
+
+        foreach my $key ( keys %$opts ) {
+            my $opt = sprintf "-%s", $key;
+            if ( exists $MFS_OPTS->{$opt} ) {
+                $self->add ( $opt, $opts->{$key} ) or return;
+            }
+        }
+
+        return 1;
+    }
+
+    sub get_str {
+        my $self = shift;
+        my @parts;
+        my @parts_append;
+
+        foreach my $opt ( sort keys %$self ) {
+            my $val = $self->{$opt};
+            my $opt_str;
+
+            if ( defined $val ) {
+                $opt_str = sprintf "%s=%s", $opt, $val;
+            } else {
+                $opt_str = $opt;
+            }
+
+            if ( $opt_str =~ m/^[-]/mx ) {
+                push @parts_append, $opt_str;
+            } else {
+                push @parts, $opt_str;
+            }
+        }
+
+        push @parts, @parts_append;
+        return join ',', @parts;
+    }
+
+}

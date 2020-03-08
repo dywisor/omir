@@ -3,13 +3,6 @@
 
 print_action "prepare ramdisk mountpoint"
 
-autodie mkdir -p -m 0755 -- /skel/ram
-autodie mkdir -p -m 0555 -- /ram
-
-__io_mounted() {
-	awk -v mp="${1}" 'BEGIN{e=1;} ($2 == mp) { e=0; exit; } END{exit e;}'
-}
-
 ramdisk_size=50
 if ! hw_usermem="$(sysctl -n hw.usermem)"; then
 	:
@@ -43,9 +36,5 @@ elif [ -n "${hw_usermem}" ]; then
 	fi
 fi
 
-
-if ! __io_mounted /ram < /etc/fstab; then
-	autodie cp -- /etc/fstab /etc/fstab.site
-	printf '\nswap /ram mfs rw,nodev,noexec,nosuid,-s=%sm,-P=/skel/ram 0 0\n' "${ramdisk_size}" >> /etc/fstab.site || die
-	autodie site_prep /etc/fstab
-fi
+autodie fstab_add_skel_mfs /ram "${ramdisk_size}"
+autodie dopath /skel/ram 0755 'root:wheel'
