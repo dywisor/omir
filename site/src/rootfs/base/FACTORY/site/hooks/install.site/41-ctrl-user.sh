@@ -58,7 +58,7 @@ setup_ctrl_ramdisk_home() {
     autodie mkdir -p -- "${skel}"
     autodie dopath "${skel}" 0770 "root:${user_gid}"
 
-    autodie fstab_add_skel_mfs "${skel}" "${user_home}" "${ramdisk_size}" "rw,nodev,nosuid"
+    autodie fstab_add_skel_mfs "${skel}" "${user_home}" "${ramdisk_size}" -o "rw,nodev,nosuid"
 }
 
 
