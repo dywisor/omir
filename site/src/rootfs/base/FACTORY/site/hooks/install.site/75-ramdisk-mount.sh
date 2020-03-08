@@ -4,36 +4,30 @@
 print_action "prepare ramdisk mountpoint"
 
 ramdisk_size=50
-if ! hw_usermem="$(sysctl -n hw.usermem)"; then
-	:
+if [ -z "${HW_USERMEM_M}" ]; then
+    :
 
-elif [ -n "${hw_usermem}" ]; then
-	mem_m="$(( hw_usermem / (1024*1024) ))"
+elif [ ${HW_USERMEM_M} -gt 60000 ]; then
+    ramdisk_size=2000
 
-	if ! { test "${mem_m:-X}" -gt 0; } 2>/dev/null; then
-		:
+elif [ ${HW_USERMEM_M} -gt 30000 ]; then
+    ramdisk_size=1000
 
-	elif [ ${mem_m} -gt 60000 ]; then
-		ramdisk_size=2000
+elif [ ${HW_USERMEM_M} -gt 15000 ]; then
+    ramdisk_size=500
 
-	elif [ ${mem_m} -gt 30000 ]; then
-		ramdisk_size=1000
+elif [ ${HW_USERMEM_M} -gt 7500 ]; then
+    ramdisk_size=250
 
-	elif [ ${mem_m} -gt 15000 ]; then
-		ramdisk_size=500
+elif [ ${HW_USERMEM_M} -gt 3750 ]; then
+    ramdisk_size=125
 
-	elif [ ${mem_m} -gt 7500 ]; then
-		ramdisk_size=250
+elif [ ${HW_USERMEM_M} -gt 1875 ]; then
+    ramdisk_size=60
 
-	elif [ ${mem_m} -gt 3750 ]; then
-		ramdisk_size=125
+else
+    ramdisk_size=30
 
-	elif [ ${mem_m} -gt 1875 ]; then
-		ramdisk_size=60
-
-	else
-		ramdisk_size=30
-	fi
 fi
 
 autodie fstab_add_skel_mfs /skel/ram /ram "${ramdisk_size}"
