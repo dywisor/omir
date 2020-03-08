@@ -5,17 +5,17 @@ __io_mounted() {
 }
 
 _fstab_add_mfs() {
-    fstab-add-mfs "${@}"
+    fstab-add-mfs "${@}" < "${fstab_dst:?}"
 }
 
 fstab_add_mfs() {
-    local dst
+    local fstab_dst
 
-    dst='/etc/fstab'
+    fstab_dst='/etc/fstab'
 
-    [ ! -e "${dst}" ] || [ -e "${dst}.dist" ] || autodie cp -- "${dst}" "${dst}.dist"
+    [ ! -e "${fstab_dst}" ] || [ -e "${fstab_dst}.dist" ] || autodie cp -- "${fstab_dst}" "${fstab_dst}.dist"
 
-    dofile_site "${dst}" 0644 'root:wheel' _fstab_add_mfs "${@}"
+    dofile_site "${fstab_dst}" 0644 'root:wheel' _fstab_add_mfs "${@}"
 }
 
 
