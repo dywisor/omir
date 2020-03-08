@@ -120,6 +120,7 @@ OCONF_UNPRIV_UID='1001'
 #  The user will be granted doas privileges in NOPASS mode.
 #
 #  The home directory will be empty.
+#  By default, a ramdisk of roughly 120m in size will be created.
 #
 #  This user will be able to log in via SSH with public keys only.
 #  Public keys are managed in /etc/ssh/authorized_keys.ctrl.
@@ -137,6 +138,7 @@ OCONF_UNPRIV_UID='1001'
 #      (this may be configurable in future)
 #
 OFEAT_CTRL_USER=0
+OFEAT_CTRL_USER_RAMDISK=1
 OCONF_CTRL_USER='ctrl'
 OCONF_CTRL_UID='999'
 OCONF_CTRL_SSH_KEY=''

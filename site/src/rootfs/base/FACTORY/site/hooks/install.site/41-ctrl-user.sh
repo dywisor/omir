@@ -71,6 +71,8 @@ autodie dofile_site "${ssh_auth_keys}" 0640 "root:${user_name}" gen_ctrl_ssh_aut
 
 autodie dofile_site "${doas_conf}" 0600 'root:wheel' gen_ctrl_doas_conf
 
-if [ -n "${HW_USERMEM_M}" ] && [ ${HW_USERMEM_M} -gt 300 ]; then
-    autodie setup_ctrl_ramdisk_home
+if [ "${OFEAT_CTRL_USER_RAMDISK:-0}" -eq 1 ]; then
+    if [ -n "${HW_USERMEM_M}" ] && [ ${HW_USERMEM_M} -gt 300 ]; then
+        autodie setup_ctrl_ramdisk_home
+    fi
 fi
