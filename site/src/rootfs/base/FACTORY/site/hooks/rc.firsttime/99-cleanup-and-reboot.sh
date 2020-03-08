@@ -1,7 +1,11 @@
 #!/bin/sh
 set -fu
 
+NL='
+'
+
 run_cleanup_code=0
+will_reboot=0
 cleanup_code="
 #!/bin/sh
 set -fu
@@ -28,6 +32,7 @@ rm -- /install.site
 add_reboot_code() {
 
 run_cleanup_code=1
+will_reboot=1
 cleanup_code="${cleanup_code}
 rm -f -- /etc/rc.firsttime.run
 sync
@@ -50,6 +55,7 @@ add_delayed_reboot_code() {
 # relink check from https://github.com/openbsd/src/blob/master/usr.sbin/syspatch/syspatch.sh
 
 run_cleanup_code=1
+will_reboot=1
 cleanup_code="${cleanup_code}
 perl -e '
 use strict;
@@ -113,7 +119,21 @@ fi
 
 
 if [ ${run_cleanup_code} -eq 1 ]; then
+    if [ "${OFEAT_FLAG_FILE_INSTALLED:-0}" -eq 1 ]; then
+        if [ ${will_reboot} -eq 1 ]; then
+            dofile_site /etc/rc.firsttime 0700 'root:wheel' \
+                printf '%s\n' '#!/bin/sh' 'touch -- /OMIR_INSTALLED'
+        else
+            cleanup_code="${cleanup_code}${NL}touch -- /OMIR_INSTALLED${NL}"
+        fi
+    fi
+
 	print_info "Running cleanup code"
 	sync
 	exec /bin/sh -c "${cleanup_code}"
+
+else
+    if [ "${OFEAT_FLAG_FILE_INSTALLED:-0}" -eq 1 ]; then
+        touch -- /OMIR_INSTALLED
+    fi
 fi

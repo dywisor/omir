@@ -215,6 +215,16 @@ OFEAT_SYNC_HWCLOCK=0
 # Finishing Touch
 # ---------------
 
+# Whether to use a flag file to indicate installation status
+#
+#   This can be used to poll the new system to check if it is ready.
+#   The flag file will be removed during installation
+#   and added after a successful rc.firsttime run.
+#
+#   The flag file path is /OMIR_INSTALLED (not configurable).
+#
+OFEAT_FLAG_FILE_INSTALLED=1
+
 # Whether to remove setup files (/FACTORY/site) when done
 OFEAT_AUTO_CLEANUP_FILES=1
 
