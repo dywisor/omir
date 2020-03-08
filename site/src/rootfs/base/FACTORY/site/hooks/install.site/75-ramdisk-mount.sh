@@ -36,5 +36,5 @@ elif [ -n "${hw_usermem}" ]; then
 	fi
 fi
 
-autodie fstab_add_skel_mfs /ram "${ramdisk_size}"
+autodie fstab_add_skel_mfs /skel/ram /ram "${ramdisk_size}"
 autodie dopath /skel/ram 0755 'root:wheel'

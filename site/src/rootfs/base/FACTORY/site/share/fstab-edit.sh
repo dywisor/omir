@@ -19,8 +19,8 @@ fstab_add_mfs() {
 }
 
 
-# _fstab_add_skel_mfs ( skel, mp, size_m, *opts )
-_fstab_add_skel_mfs() {
+# fstab_add_skel_mfs ( skel, mp, size_m, *opts )
+fstab_add_skel_mfs() {
     local skel
     local mp
     local size_m
@@ -35,16 +35,4 @@ _fstab_add_skel_mfs() {
     mkdir -p -- "${skel}" || return
 
     fstab_add_mfs "${@}" -s "${size_m}m" -P "${skel}" "${mp}"
-}
-
-
-# fstab_add_skel_mfs ( mp, size_m, *opts )
-fstab_add_skel_mfs() {
-    local skel
-    local mp
-
-    mp="${1:?}"; shift
-    skel="/skel/${mp##*/}"
-
-    _fstab_add_skel_mfs "${skel}" "${mp}" "${@}"
 }
