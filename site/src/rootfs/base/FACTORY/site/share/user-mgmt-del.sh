@@ -11,7 +11,7 @@ delete_user() {
     [ -n "${1-}" ] || die "missing user name"
     check_valid_user_name "${1}" || die "Invalid user name"
 
-    if get_user_info "${1}"; then
+    if ! get_user_info "${1}"; then
         print_info "Not removing user ${1}: does not exist"
         return 0
     fi
