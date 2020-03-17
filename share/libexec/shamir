@@ -312,6 +312,7 @@ if ( $opts->{check} ) {
 # bail out with success exit code if nothing (new) to download
 if ( not scalar @files_to_fetch ) {
 	printf {*STDOUT} "All files are up-to-date.\n";
+	rmfile ( f_new($sha_file) );
 	exit 0;
 }
 
