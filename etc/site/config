@@ -421,3 +421,24 @@ OFEAT_NETCONFIG_DYNAMIC_RESOLV_SEARCH=0
 #OCONF_NETCONFIG_DYNAMIC_RESOLV_SEARCH_SKIP=0
 #OCONF_NETCONFIG_DYNAMIC_RESOLV_SEARCH_APPEND=""
 #OCONF_NETCONFIG_DYNAMIC_RESOLV_SEARCH_PREPEND=""
+
+# Web Proxy
+# +++++++++
+#
+# You may configure a web proxy here.
+# It will be used throughout install.site / rc.firsttime and
+# will be made available in the system environment via /etc/profile.d/proxy.sh.
+#
+# NO_PROXY can be used to bypass the proxy for certain domains or IP addresses.
+# Localhost plus its IPv4 gets automatically excluded (FIXME: IPv6?).
+# Additional domains may be provided here as comma-separated list.
+#
+# Enabling this feature and setting OCONF_WEB_PROXY=""
+# will delete any previous proxy configuration.
+# Disabling this feature will leave the system unmodified.
+#
+# NOTE: including quotes in any of these vars will break your system.
+#
+OFEAT_WEB_PROXY=0
+#OCONF_WEB_PROXY="http://proxy:8080"
+#OCONF_WEB_NO_PROXY="omir"

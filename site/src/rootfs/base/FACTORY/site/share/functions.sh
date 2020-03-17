@@ -8,6 +8,7 @@ set -fu
 load_lib runtime-env
 load_lib config
 load_lib localconfig
+load_lib proxy
 load_lib fs
 load_lib fstab-edit
 load_lib run-hook
