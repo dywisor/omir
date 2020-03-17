@@ -3,9 +3,10 @@
 # Fetches files <url>/<name> for each <name> listed in <url>/SHA256.
 #
 # Usage:
-#   shamir [-c|-l] [-E <expr>] [-C <dstdir>] <url>
+#   shamir [-c|-l] [-B] [-E <expr>] [-C <dstdir>] <url>
 #
-# Use case:           mirror firmware.openbsd.org
+# Use case:           mirror firmware.openbsd.org (with -B, --base64)
+#                     mirror OpenBSD releases (without -B)
 # Target platform:    OpenBSD 6.x + rsync
 #                     Debian 10.x + curl, rsync
 # Portability issues: uses ftp(1) to download files
@@ -42,7 +43,7 @@ our $VERSION = '0.2';
 our $NAME    = 'shamir';
 
 my $prog_name   = basename($0);
-my $short_usage = "${prog_name} [-c|-l] [-E <expr>] [-C <dstdir>] <url>";
+my $short_usage = "${prog_name} [-c|-l] [-B] [-E <expr>] [-C <dstdir>] <url>";
 
 sub main_get_opts {
 	my $opts = shift;
@@ -53,6 +54,7 @@ sub main_get_opts {
 		'check|c',
 		'list|l',
 		'expr|E=s',
+		'base64|B',
 	);
 
 	return GetOptions($opts, @options_def);
@@ -122,22 +124,30 @@ sub get_file_map {
 	return $fmap;
 }
 
-# str get_file_sha256 ( str filepath )
+# str get_file_sha256 ( str filepath, bool base64_mode )
 #
 #    Calculates and returns the SHA256 checksum for the given file.
 #
 sub get_file_sha256 {
 	my $filepath = shift or die "No file path?";
+	my $base64_mode = shift;
+	my $shasum;
 
 	my $hashobj = Digest::SHA->new ( 'sha256' );
 
 	$hashobj->addfile ( $filepath ) or die "Failed to hash file ${filepath}: $!";
 
-	my $shasum = $hashobj->b64digest or die "Failed to get SHA256 hash";
+	if ( $base64_mode ) {
+		$shasum = $hashobj->b64digest or die "Failed to get SHA256 hash";
 
-	# emulate sha256(1) behavior, append '='
-	#   https://perldoc.perl.org/Digest/SHA.html#PADDING-OF-BASE64-DIGESTS
-	while ( (length $shasum) % 4 ) { $shasum .= '='; }
+		# emulate sha256(1) behavior, append '='
+		#   https://perldoc.perl.org/Digest/SHA.html#PADDING-OF-BASE64-DIGESTS
+		while ( (length $shasum) % 4 ) { $shasum .= '='; }
+
+	} else {
+		# hex mode
+		$shasum = $hashobj->hexdigest;
+	}
 
 	return $shasum;
 }
@@ -181,6 +191,8 @@ if ( ! main_get_opts ( $opts ) ) {
 	main_print_help();
 	exit 0;
 }
+
+my $base64_mode = $opts->{'base64'};
 
 
 # str base_url from @ARGV
@@ -258,7 +270,7 @@ foreach my $fname ( sort keys %$file_map ) {
 		warn "Skipping symlink: ${fname}\n";
 
 	} elsif ( -f $fname ) {
-		my $have_chk = get_file_sha256 ( $fname )
+		my $have_chk = get_file_sha256 ( $fname, $base64_mode )
 			or die "Failed to get SHA256 for file ${fname}";
 
 		if ( $want_chk ne $have_chk ) {
@@ -315,7 +327,7 @@ foreach my $fname ( @files_to_fetch ) {
 	rmfile ( $dst );
 	FetchFile::fetch ( $dst, $file_url ) or die "Failed to fetch ${fname}";
 
-	my $have_chk = get_file_sha256 ( $dst )
+	my $have_chk = get_file_sha256 ( $dst, $base64_mode )
 		or die "Failed to get SHA256 for file ${dst}";
 
 	# remote sent us garbage or bitrot (EAGAIN) or MITM --> stop

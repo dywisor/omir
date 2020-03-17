@@ -159,7 +159,7 @@ omir_fetch_openbsd_firmware() {
 
 		mkdir -p -- "${firmware_dst}" || return
 		einfo "Fetching firmware for ${rel}"
-		shamir -C "${firmware_dst}" "${OMIR_UPSTREAM_FW_URI}/${rel}" || return
+		shamir --base64 -C "${firmware_dst}" "${OMIR_UPSTREAM_FW_URI}/${rel}" || return
 	done
 
 	find "${MIRROR_OPENBSD_FW}" -mindepth 1 -type f -exec chmod 0644 '{}' +
