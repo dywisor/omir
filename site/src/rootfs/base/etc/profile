@@ -1,0 +1,23 @@
+#!/bin/sh
+
+_profile_restore_noglob=
+case "$-" in
+    *f*) _profile_restore_noglob=1; set +f ;;
+esac
+
+_profile_restore_nounset=
+case "$-" in
+    *u*) _profile_restore_nounset=1; set +u ;;
+esac
+
+t0=
+for t0 in /etc/profile.d/*.sh; do
+    [ -r "${t0}" ] && . "${t0}" || :
+done
+unset -v t0
+
+[ -z "${_profile_restore_nounset-}" ] || set -u
+unset -v _profile_restore_nounset
+
+[ -z "${_profile_restore_noglob-}" ] || set -f
+unset -v _profile_restore_noglob
