@@ -64,7 +64,7 @@ sshd_add_user() {
 
 print_action "Preparing SSH server configuration"
 
-if feat_all "${OFEAT_LOGIN_USER-}"; then
+if feat_all "${OFEAT_LOGIN_USER-}" "${OFEAT_LOGIN_USER_SSH-}"; then
     autodie sshd_add_user login "${OCONF_LOGIN_USER-}"
 fi
 

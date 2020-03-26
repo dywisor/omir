@@ -99,7 +99,10 @@ OFEAT_PKG_PYTHON_LATEST=0
 #  Alternatively, you may disable the login user (OFEAT_LOGIN_USER=0).
 #  This will remove it from the system, possibly rendering you unable to log in.
 #
+#  SSH access can be disabled by setting OFEAT_LOGIN_USER_SSH=0.
+#
 OFEAT_LOGIN_USER=1
+OFEAT_LOGIN_USER_SSH=1
 OCONF_LOGIN_USER='cosmo'
 
 # unprivileged user
@@ -134,8 +137,6 @@ OCONF_UNPRIV_UID='1001'
 #    - doas(1) will be configured for that user only,
 #      overriding any other configuration
 #    - will unconditionally enable sshd configuration
-#    - ssh logins will be restricted to the ctrl user
-#      (this may be configurable in future)
 #
 OFEAT_CTRL_USER=0
 OFEAT_CTRL_USER_RAMDISK=1
