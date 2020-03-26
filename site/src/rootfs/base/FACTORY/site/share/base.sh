@@ -96,10 +96,6 @@ locate_factory_file() {
 	_locate_factory_path "${FACTORY_SITE_FILES}" "${@}"
 }
 
-locate_factory_template() {
-	_locate_factory_path "${FACTORY_SITE_TEMPLATES}" "${@}"
-}
-
 locate_factory_src() {
 	_locate_factory_path "${FACTORY_SITE_SRC}" "${@}"
 }

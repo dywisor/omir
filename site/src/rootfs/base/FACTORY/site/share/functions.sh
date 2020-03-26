@@ -14,8 +14,6 @@ load_lib fstab-edit
 load_lib run-hook
 load_lib run-helper
 load_lib install
-load_lib render-template
-load_lib template
 load_lib site-prep
 load_lib site-dofile
 load_lib site-cc
