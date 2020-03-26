@@ -96,10 +96,53 @@ locate_factory_file() {
 	_locate_factory_path "${FACTORY_SITE_FILES}" "${@}"
 }
 
-locate_factory_template() {
-	_locate_factory_path "${FACTORY_SITE_TEMPLATES}" "${@}"
-}
-
 locate_factory_src() {
 	_locate_factory_path "${FACTORY_SITE_SRC}" "${@}"
+}
+
+
+# feat_all ( *args )
+#
+#  Returns true if all args are set to '1'
+#  and at least one arg was given, otherwise false.
+#
+#  Empty args will be interpreted as '0'.
+#
+#  This can be used for feature checks:
+#
+#    if feat_all "${A:-0}" "${B:-0}"; then
+#       ...
+#    fi
+#
+feat_all() {
+    [ ${#} -gt 0 ] || return 1
+
+    while [ ${#} -gt 0 ]; do
+        [ "${1:-0}" -eq 1 ] || return 1
+        shift
+    done
+
+    return 0
+}
+
+# feat_not_all ( *args )
+#   IS NEGATED feat_all()
+#
+feat_not_all() {
+    ! feat_all "${@}"
+}
+
+# feat_any( *args )
+#
+#  Returns true if at least one arg is set to '1'.
+#
+feat_any() {
+    while [ ${#} -gt 0 ]; do
+        if [ "${1:-0}" -eq 1 ]; then
+            return 0
+        fi
+        shift
+    done
+
+    return 1
 }

@@ -40,3 +40,11 @@ dofile() {
         "${@}" > "${dst}" || return
     fi
 }
+
+# @BADLY_NAMED dodir_mode ( dst, [mode], [owner] )
+dodir_mode() {
+    : "${1:?}"
+
+    mkdir -p -m "${2:-0755}" -- "${1}" || return
+    dopath "${@}"
+}
