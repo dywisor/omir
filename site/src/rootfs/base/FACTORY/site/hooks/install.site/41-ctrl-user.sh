@@ -33,7 +33,7 @@ gen_ctrl_ssh_auth_keys() {
 
 gen_ctrl_doas_conf() {
     set -- 'SSH_CLIENT' 'SSH_CONNECTION' 'SSH_TTY'
-    printf 'permit nopass setenv { %s } %s as root\n' \
+    printf 'permit nopass setenv { %s } %s\n' \
         "${*}" \
         "${user_name}"
 }
