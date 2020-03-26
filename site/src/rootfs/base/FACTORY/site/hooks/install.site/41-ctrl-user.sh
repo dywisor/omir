@@ -56,7 +56,7 @@ setup_ctrl_ramdisk_home() {
 
     skel="${skel}/${user_name}"
     autodie mkdir -p -- "${skel}"
-    autodie dopath "${skel}" 0770 "root:${user_gid}"
+    autodie dopath "${skel}" 0771 "root:${user_gid}"
 
     autodie fstab_add_skel_mfs "${skel}" "${user_home}" "${ramdisk_size}" -o "rw,nodev,nosuid"
 }
@@ -66,6 +66,8 @@ autodie create_user_empty_home \
     "${OCONF_CTRL_USER}" \
     "${OCONF_CTRL_UID}" \
     '/bin/sh'
+
+autodie chmod 0711 "${user_home}"
 
 autodie dofile_site "${ssh_auth_keys}" 0640 "root:${user_name}" gen_ctrl_ssh_auth_keys
 
