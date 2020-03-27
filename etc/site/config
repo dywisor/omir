@@ -126,8 +126,8 @@ OCONF_UNPRIV_UID='1001'
 #  By default, a ramdisk of roughly 120m in size will be created.
 #
 #  This user will be able to log in via SSH with public keys only.
-#  Public keys are managed in /etc/ssh/authorized_keys.<user>.
-#  They will be copied from <FACTORY>/files/authorized_keys.<user>,
+#  Public keys are managed in /etc/ssh/authorized_keys/<user>.
+#  They will be copied from <FACTORY>/files/authorized_keys/<user>,
 #  you may also configure a single key here.
 #
 #  SSH access can be further restricted to select hosts

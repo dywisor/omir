@@ -28,7 +28,7 @@
 #     - shell: yes
 #     - port forwardings: no
 #     - chroot: none
-#     - authorized keys: /etc/ssh/authorized_keys.<user>
+#     - authorized keys: /etc/ssh/authorized_keys/<user>
 #
 #   - gen_sshd_jump_user ( user )
 #     For users that jump through this host,
@@ -36,7 +36,7 @@
 #     - shell: no
 #     - port forwardings: yes
 #     - chroot: home directory
-#     - authorized keys: /etc/ssh/authorized_keys.<user>
+#     - authorized keys: /etc/ssh/authorized_keys/<user>
 #
 # Note that adding a Match block for a user that has not been given
 # to gen_sshd_config_base() will have no effect.
@@ -187,7 +187,7 @@ gen_sshd_frag_auth_keys() {
         ;;
 
         *)
-            auth_keys="${SSHD_CONFDIR}/authorized_keys.${arg}"
+            auth_keys="${SSHD_SYSTEM_AUTH_KEYS_DIR}/${arg}"
         ;;
     esac
 
