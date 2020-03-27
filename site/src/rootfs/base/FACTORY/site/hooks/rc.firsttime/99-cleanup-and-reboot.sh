@@ -4,6 +4,16 @@ set -fu
 NL='
 '
 
+if feat_all "${OFEAT_RAMDISK_VAR_LOG-}"; then
+    if dodir_mode "/FACTORY/log" 0700 'root:wheel'; then
+        cleanup_log_dst="/FACTORY/log"
+    else
+        cleanup_log_dst="/var/log"
+    fi
+else
+    cleanup_log_dst="/var/log"
+fi
+
 run_cleanup_code=0
 will_reboot=0
 cleanup_code="
@@ -16,8 +26,8 @@ add_cleanup_code() {
 
 run_cleanup_code=1
 cleanup_code="${cleanup_code}
-mv -- /install.site.log /var/log/install.site.log
-mv -- /rc.firsttime.log /var/log/rc.firsttime.log
+mv -- /install.site.log ${cleanup_log_dst}/install.site.log
+mv -- /rc.firsttime.log ${cleanup_log_dst}/rc.firsttime.log
 
 rm -rf -- \"${FACTORY_SITE}\"
 rmdir -- \"${FACTORY_SITE%/*}\" 2>/dev/null || :
