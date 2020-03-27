@@ -30,7 +30,6 @@ sshd_add_user() {
     arg_user_name="${2-}"
     arg_sshd_from="${3-}"
 
-    [ "${arg_user_enabled}" -eq 1 ] || return 0
     [ -n "${arg_user_name}" ] || return 0
 
     # unpack arg_sshd_from
