@@ -195,6 +195,13 @@ OFEAT_RAMDISK_USERDIR=1
 #   Depends on OFEAT_RAMDISK.
 OFEAT_RAMDISK_LOG=1
 
+# Additional memory file systems may be configured below
+# independently of OFEAT_RAMDISK:
+#
+#   - /dev (fixed size)
+#
+OFEAT_RAMDISK_DEV=0
+
 
 # SSH Server
 # ----------
