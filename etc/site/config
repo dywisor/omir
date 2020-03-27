@@ -200,10 +200,15 @@ OFEAT_RAMDISK_LOG=1
 #
 #   - /dev (fixed size)
 #   - /var/run
+#   - /var/log (with empty-files skel taken from pre-ramdisk /var/log)
 #
 OFEAT_RAMDISK_DEV=0
+
 OFEAT_RAMDISK_VAR_RUN=0
 OCONF_RAMDISK_VAR_RUN=2
+
+OFEAT_RAMDISK_VAR_LOG=0
+OCONF_RAMDISK_VAR_LOG=50
 
 
 # SSH Server

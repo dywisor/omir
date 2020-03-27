@@ -1,0 +1,180 @@
+#!/usr/bin/env perl
+#
+# Creates a skel copy of /var/log at /skel/var/log.
+# This copy will contain dirs/files/symlinks with proper
+# permissions and ownership, but all files will be empty.
+# Logrotate files are automatically skipped.
+# 
+# Note: perm/owner of symlinks will not be copied
+# Note: files existing in skel but not in /var/log will not be removed
+#
+package UpdateLogSkelMain;
+
+use strict;
+use warnings;
+use feature qw( say );
+
+use File::stat;
+use Fcntl ':mode';
+
+use constant DEFAULT_SRC_ROOT => '/var/log';
+use constant DEFAULT_DST_ROOT => '/skel/var/log';
+
+my $src_root = shift || DEFAULT_SRC_ROOT;
+my $dst_root = shift || DEFAULT_DST_ROOT;
+
+umask 0077 or die "Failed to set umask: $!\n";
+
+process ( $src_root, $dst_root ) or die "Failed.\n";
+
+sub process {
+    my $src = shift;
+    my $dst = shift;
+
+    my $src_info = lstat $src or die "Failed to stat ${src}: $!\n";
+    my $dst_info = lstat $dst;
+
+    my $src_ftype = S_IFMT($src_info->mode);
+
+    if ( $dst_info ) {
+        my $dst_ftype = S_IFMT($dst_info->mode);
+
+        if ( $src_ftype != $dst_ftype ) {
+            die "src/dst filetype mismatch: ${src} <-> ${dst}\n";
+        }
+    }
+
+    if ( S_ISREG($src_ftype) ) {
+        process_file ( $src, $dst, $src_info, $dst_info ) or return;
+
+    } elsif ( S_ISDIR($src_ftype) ) {
+        process_dir ( $src, $dst, $src_info, $dst_info ) or return;
+
+    } elsif ( S_ISLNK($src_ftype) ) {
+        process_symlink ( $src, $dst, $src_info, $dst_info ) or return;
+
+    } # other types ignored.
+
+    return 1;
+}
+
+sub process_file {
+    my $src = shift;
+    my $dst = shift;
+    my $src_info = shift;
+    my $dst_info = shift;
+
+    if ( not $dst_info ) {
+        printf {*STDOUT} "Creating file: %s\n", $dst;
+        open my $fh, '>', $dst or die "Failed to open file ${dst}: $!\n";
+        close $fh or warn;
+    }
+
+    update_perm_and_owner ( $dst, $src_info, $dst_info ) or return;
+    return 1;
+}
+
+sub process_dir {
+    my $src = shift;
+    my $dst = shift;
+    my $src_info = shift;
+    my $dst_info = shift;
+
+    opendir ( my $dh, $src ) or return;
+    my @names = grep { ($_ ne '.') && ($_ ne '..'); } readdir $dh;
+    closedir $dh or warn;
+
+    if ( $dst_info ) {
+        printf {*STDOUT} "Updating directory: %s\n", $dst;
+    } else {
+        printf {*STDOUT} "Creating directory: %s\n", $dst;
+        mkdir $dst or die "Failed to create directory ${dst}: $!\n";
+    }
+
+    foreach my $name (sort @names) {
+        if ( check_name_ok ( $name ) ) {
+            process ( "${src}/${name}", "${dst}/${name}" ) or return;
+        } else {
+            #printf {*STDERR} "Skipping: %s/%s\n", $src, $name;
+        }
+    }
+
+    update_perm_and_owner ( $dst, $src_info, $dst_info ) or return;
+    return 1;
+}
+
+sub process_symlink {
+    my $src = shift;
+    my $dst = shift;
+    my $src_info = shift;
+    my $dst_info = shift;
+
+    my $need_new_sym;
+
+    my $src_target = readlink $src or die "Failed to readlink ${src}: $!\n";
+
+    if ( $dst_info ) {
+        my $dst_target = readlink $dst or die "Failed to readlink ${dst}: $!\n";
+
+        if ( $src_target ne $dst_target ) {
+            printf {*STDOUT} "Updating symlink: %s\n", $dst;
+            unlink $dst or die "Failed to remove ${dst}: $!\n";
+            $need_new_sym = 1;
+
+        } else {
+            $need_new_sym = 0;
+        }
+
+    } else {
+        printf {*STDOUT} "Creating symlink: %s\n", $dst;
+        $need_new_sym = 1;
+    }
+
+    if ( $need_new_sym ) {
+        symlink $src_target, $dst or die "Failed to create symlink ${dst}: $!\n";
+    }
+
+    # no-update perm/owner
+    return 1;
+}
+
+sub check_name_ok {
+    my $name = shift or return;
+
+    if ( $name =~ m/[.](gz|old|[0-9])$/mx ) {
+        return 0;
+
+    } else {
+        return 1;
+    }
+}
+
+sub update_perm_and_owner {
+    my $path = shift;
+    my $want = shift;
+    my $have = shift;
+    
+    my $need_chmod = 0;
+    my $need_chown = 0;
+
+    if ( $have ) {
+        $need_chmod = S_IMODE($want->mode) != S_IMODE($have->mode);
+        $need_chown = (
+            ($want->uid != $have->uid) || ($want->gid != $have->gid)
+        );
+
+    } else {
+        $need_chmod = 1;
+        $need_chown = 1;
+    }
+
+    if ( $need_chmod ) {
+        chmod S_IMODE($want->mode), $path or die "Failed to set permissions for ${path}: $!\n";
+    }
+
+    if ( $need_chown ) {
+        chown $want->uid, $want->gid, $path or die "Failed to set owner for ${path}: $!\n";
+    }
+
+    return 1;
+}
