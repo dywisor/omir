@@ -3,7 +3,7 @@
 # sshd_setup ( login_users, ctrl_users, jump_users )
 #
 sshd_setup() {
-    dodir_mode /etc/ssh 0755 'root:wheel' || return
+    dodir_mode "${SSHD_CONFDIR}" 0755 'root:wheel' || return
     sshd_setup_create_sshd_config "${@}" || return
     sshd_setup_create_host_keys || return
 }
@@ -16,7 +16,7 @@ sshd_setup_create_host_keys() {
     print_action "Creating SSH host keys"
 
     for key_type in ${SSHD_HOST_KEY_TYPES:?}; do
-        key_file="/etc/ssh/ssh_host_${key_type}_key"
+        key_file="${SSHD_CONFDIR}/ssh_host_${key_type}_key"
 
         if check_fs_lexists "${key_file}"; then
             print_info "Skipping creation of SSH host key ${key_file}: exists"
@@ -65,5 +65,5 @@ _sshd_setup_gen_sshd_config() {
 }
 
 sshd_setup_create_sshd_config() {
-    dofile '/etc/ssh/sshd_config' 0600 'root:wheel' _sshd_setup_gen_sshd_config "${@}"
+    dofile "${SSHD_CONF_FILE}" 0600 'root:wheel' _sshd_setup_gen_sshd_config "${@}"
 }

@@ -76,7 +76,7 @@ Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com
 EOF
 
 for iter in ${SSHD_HOST_KEY_TYPES:?}; do
-    printf 'HostKey /etc/ssh/ssh_host_%s_key\n' "${iter}"
+    printf 'HostKey %s/ssh_host_%s_key\n' "${SSHD_CONFDIR}" "${iter}"
 done
 
 cat << EOF
@@ -187,7 +187,7 @@ gen_sshd_frag_auth_keys() {
         ;;
 
         *)
-            auth_keys="/etc/ssh/authorized_keys.${arg}"
+            auth_keys="${SSHD_CONFDIR}/authorized_keys.${arg}"
         ;;
     esac
 
