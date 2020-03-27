@@ -1,5 +1,7 @@
 #!/bin/sh
-# Keep this file self-sufficient - no external deps
+# Keep this file mostly self-sufficient - no external deps except for:
+#
+#   - vars.sh
 #
 # sshd config generator
 #
@@ -57,9 +59,6 @@
 ##   On Linux, this can be circumvented with PAM,
 ##   I have yet to find an equivalent solution for OpenBSD.
 ##
-
-GEN_SSHD_DEFAULT_AUTH_KEYS_FILE='.ssh/authorized_keys'
-GEN_SSHD_HOST_KEY_TYPES='rsa ed25519'
 
 # gen_sshd_config_base ( allow_users )
 gen_sshd_config_base() {
