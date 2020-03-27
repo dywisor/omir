@@ -15,7 +15,7 @@ sshd_setup_create_host_keys() {
 
     print_action "Creating SSH host keys"
 
-    for key_type in ${GEN_SSHD_HOST_KEY_TYPES:?}; do
+    for key_type in ${SSHD_HOST_KEY_TYPES:?}; do
         key_file="/etc/ssh/ssh_host_${key_type}_key"
 
         if check_fs_lexists "${key_file}"; then

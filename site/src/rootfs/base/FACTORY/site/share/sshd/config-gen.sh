@@ -75,7 +75,7 @@ Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com
 
 EOF
 
-for iter in ${GEN_SSHD_HOST_KEY_TYPES:?}; do
+for iter in ${SSHD_HOST_KEY_TYPES:?}; do
     printf 'HostKey /etc/ssh/ssh_host_%s_key\n' "${iter}"
 done
 
@@ -89,7 +89,7 @@ PasswordAuthentication no
 ChallengeResponseAuthentication no
 PubkeyAuthentication yes
 
-AuthorizedKeysFile	${GEN_SSHD_DEFAULT_AUTH_KEYS_FILE:?}
+AuthorizedKeysFile	${SSHD_USER_AUTH_KEYS_FILE:?}
 
 GatewayPorts no
 PermitTunnel no
