@@ -78,6 +78,6 @@ print_action "Creating SSH server configuration"
 
 autodie sshd_setup \
     "${sshd_allow_users}" \
-    "${sshd_login_user}" \
+    "${sshd_login_users}" \
     "${sshd_ctrl_users}" \
     "${sshd_jump_users}"
