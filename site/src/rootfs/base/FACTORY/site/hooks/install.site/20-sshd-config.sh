@@ -1,6 +1,6 @@
 #!/bin/sh
-load_lib sshd
 feat_check_sshd || exit 0
+load_lib sshd
 
 sshd_allow_users=
 

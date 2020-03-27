@@ -8,6 +8,7 @@ set -fu
 load_lib runtime-env
 load_lib config
 load_lib localconfig
+load_lib feature-check
 load_lib proxy
 load_lib fspath
 load_lib fs
