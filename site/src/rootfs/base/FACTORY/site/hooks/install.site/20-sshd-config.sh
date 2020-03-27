@@ -1,5 +1,5 @@
 #!/bin/sh
-feat_any "${OFEAT_SSHD_CONFIG-}" "${OFEAT_CTRL_USER-}" || exit 0
+feat_check_sshd || exit 0
 load_lib sshd
 
 sshd_allow_users=
