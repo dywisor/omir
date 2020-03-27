@@ -4,7 +4,7 @@
 autodie check_valid_user_name "${OCONF_CTRL_USER}"
 [ -n "${OCONF_CTRL_UID-}" ] || die "ctrl UID not set."
 
-ssh_auth_keys='/etc/ssh/authorized_keys.ctrl'
+ssh_auth_keys="/etc/ssh/authorized_keys.${OCONF_CTRL_USER}"
 doas_conf='/etc/doas.conf'
 
 gen_ctrl_ssh_auth_keys() {
