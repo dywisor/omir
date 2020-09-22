@@ -9,6 +9,12 @@ PROFILES_DIR = ${OMIR_SITE_CONF_DIR}/profiles
 
 PROFILES != ( cd "${PROFILES_DIR}" && find ./ -type f -not -name '.keep' | sed -r -e 's=^[.]/==' )
 
+PXE_USE_SYMLINK ?= 1
+.if ${PXE_USE_SYMLINK}
+PXE_DOLINK = ${OMIR_LIBEXEC}/ln-file-sym-rel
+.else
+PXE_DOLINK = cp -pP --
+.endif
 
 CONFIGV =
 CONFIGV += ${OMIR_SITE_CONF_DIR}/config
@@ -54,7 +60,7 @@ ${MIRROR_PXE_OPENBSD}/${_rel}/${_arch}/bsd.rd: \
 	${MIRROR_PXE_OPENBSD}/${_rel}/${_arch}
 
 	rm -f -- ${@}
-	${OMIR_LIBEXEC}/ln-file-sym-rel ${MIRROR_OPENBSD}/${_rel}/${_arch}/bsd.rd ${@}
+	${PXE_DOLINK}  ${MIRROR_OPENBSD}/${_rel}/${_arch}/bsd.rd ${@}
 
 # etc/
 _SETUP_FILES += ${MIRROR_PXE_OPENBSD}/${_rel}/${_arch}/etc
@@ -134,7 +140,7 @@ ${MIRROR_PXE_OPENBSD}/${_rel}/${_arch}/${_variant}/pxeboot: \
 
 	mkdir -p -- ${@D}
 	rm -f -- ${@}
-	${OMIR_LIBEXEC}/ln-file-sym-rel ${.ALLSRC} ${@}
+	${PXE_DOLINK} ${.ALLSRC} ${@}
 
 # auto_install
 _SETUP_FILES += ${MIRROR_PXE_OPENBSD}/${_rel}/${_arch}/${_variant}/auto_install
