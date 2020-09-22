@@ -230,6 +230,23 @@ OFEAT_SSHD_CONFIG=1
 OFEAT_SYNC_HWCLOCK=0
 
 
+# Install Custom Scripts
+# ----------------------
+
+# Whether to install custom scripts
+#
+#   If enabled, all files found in subdirectories
+#   of /FACTORY/site/files/scripts (non-recursive)
+#   will be installed to /usr/local/bin/.
+#
+#   The selection can be fine-tuned by listing the desired scripts
+#   in OCONF_INSTALL_SCRIPTS (wildcards are supported, e.g. base/*).
+#   Setting OCONF_INSTALL_SCRIPTS to "all" or "" will install all scripts.
+#
+OFEAT_INSTALL_SCRIPTS=0
+OCONF_INSTALL_SCRIPTS="all"
+
+
 # Finishing Touch
 # ---------------
 

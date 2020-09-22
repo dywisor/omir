@@ -1,0 +1,17 @@
+#!/bin/sh
+# Usage:
+#   ssh-jump ...
+#   scp-jump ...
+#
+N="${BASH_SOURCE:-${0}}"
+N="${N##*/}"
+N="${N%.*}"
+N="${N%-jump}"
+
+[ ${#} -gt 0 ] || return 64
+
+hop="${1:?}"; shift
+
+[ ${#} -gt 0 ] || return 64
+
+exec "${N:?}" -o ProxyCommand="ssh -W %h:%p ${hop}" "${@}"

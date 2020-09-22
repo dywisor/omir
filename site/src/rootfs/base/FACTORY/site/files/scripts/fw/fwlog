@@ -1,0 +1,2 @@
+#!/bin/sh
+exec tcpdump -s 65535 -e -i pflog0 "${@}"

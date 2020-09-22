@@ -1,0 +1,5 @@
+#!/bin/sh
+pcap_file="${1:?missing <pcap> file arg}"
+shift
+
+tail -c +1 -f "${pcap_file}" | tcpdump -l -r - "${@}"

@@ -1,0 +1,5 @@
+#!/bin/sh
+# Usage: HOME [<user>]
+#  Prints the home directory of <user> (or the current user) to stdout.
+#
+getent passwd "${1:-$(id -u)}" | cut -d : -f 6

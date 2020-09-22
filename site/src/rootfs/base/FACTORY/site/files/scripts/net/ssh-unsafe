@@ -1,0 +1,11 @@
+#!/bin/sh
+# Usage:
+#   ssh-unsafe ...
+#   scp-unsafe ...
+#
+N="${BASH_SOURCE:-${0}}"
+N="${N##*/}"
+N="${N%.*}"
+N="${N%-unsafe}"
+
+exec "${N:?}" -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no "${@}"
