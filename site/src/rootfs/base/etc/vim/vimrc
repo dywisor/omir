@@ -1,0 +1,18 @@
+source /usr/local/share/vim/vim81/defaults.vim
+
+set mouse=
+set bg=dark
+
+set autoindent
+set nosmartindent
+
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
+set expandtab
+
+filetype indent on
+autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab
+
+"Remove all trailing whitespace by pressing F5
+nnoremap <F5> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar><CR>
