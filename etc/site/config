@@ -48,10 +48,9 @@ OFEAT_SHALLOW_LOCAL_MIRROR=1
 # feature: Whether to run fw_update -p <local mirror> on first boot
 #
 #   This is useful if the deployed systems may not access the official
-#   firmware servers , or to reduce overall internet
-#   bandwidth usage.
+#   firmware servers, or to reduce overall internet bandwidth usage.
 #
-#   Note that the deployed system will try to fetch firmware files
+#   Note that the deployed system will still try to fetch firmware files
 #   from the official servers (firmware.openbsd.org) during init.
 #
 #   Depends on OCONF_INSTALLURL_LOCAL.
@@ -113,6 +112,7 @@ OCONF_LOGIN_USER='cosmo'
 #
 #   Can be disabled by setting the user name to the empty string.
 #
+OFEAT_UNPRIV_USER=1
 OCONF_UNPRIV_USER='wanda'
 OCONF_UNPRIV_UID='1001'
 
