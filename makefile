@@ -20,6 +20,7 @@ PHONY += init
 init: ${S}/etc/omir.mkenv
 	${MAKE} -C ${S}/bin/
 	${MAKE} -C ${S}/etc/site/ init
+	${MAKE} -C ${S}/share/scripts all
 
 PHONY += site
 site: ${S}/etc/omir.mkenv

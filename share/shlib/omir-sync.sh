@@ -169,7 +169,7 @@ omir_fetch_openbsd_firmware() {
 
 # FIXME: move to base
 __omir_sync_xargs_mkindex() {
-	xargs -0 -r -n 1 sh -c 'cd "${1}" && command ls -nT | grep -v "index[.]txt$" > ./index.txt' _
+	xargs -0 -r -n 1 sh -c 'cd "${1}" && omir-mkindex > ./index.txt' _
 }
 
 

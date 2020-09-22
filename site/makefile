@@ -33,7 +33,8 @@ SITE_INSTALL_LIBEXEC += netmask-hex-to-dot
 
 X_DISOWN_TAR = ${OMIR_LIBEXEC}/disown-tar
 
-GNU_TAR ?= 0
+GNU ?= 0
+GNU_TAR ?= ${GNU}
 
 PHONY += all
 all: site.tgz

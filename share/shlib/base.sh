@@ -84,10 +84,7 @@ rmfile() {
 
 # mkindex ( dirpath )
 mkindex() {
-	(
-		cd "${1}" && \
-		command ls -nT | grep -v 'index[.]txt$' > './index.txt'
-	)
+    ( cd "${1}" && omir-mkindex > './index.txt'; )
 }
 
 

@@ -1,6 +1,6 @@
 S := ${.CURDIR}
 
-OMIR_SCRIPTS != find ${S}/../share/scripts -type f -not -name omir-run -print0 | xargs -r -0 -n 1 basename | sort
+OMIR_SCRIPTS != find ${S}/../share/scripts -maxdepth 1 -type f -not -name '.*' -not -name omir-run -print0 | xargs -r -0 -n 1 basename | sort
 
 PROG_NAMES :=
 PROG_NAMES += omir-env
