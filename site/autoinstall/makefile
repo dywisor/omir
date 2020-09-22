@@ -176,14 +176,6 @@ ${MIRROR_PXE_OPENBSD}/current: ${_SETUP_FILES} FORCE
 	}
 
 
-# FIXME: amd64 hardcoded
-SETUP_FILES += ${MIRROR_ROOT}/etc
-${MIRROR_ROOT}/etc: ${MIRROR_PXE_OPENBSD}/current
-	test -e '${@}' || test -h '${@}' || \
-		${OMIR_LIBEXEC}/ln-file-sym-rel \
-		${MIRROR_PXE_OPENBSD}/current/amd64/etc \
-		${@}
-
 PHONY += all-install-conf
 all-install-conf: ${ALL_INSTALL_CONF}
 
