@@ -98,10 +98,13 @@ OFEAT_PKG_PYTHON_LATEST=0
 #  Alternatively, you may disable the login user (OFEAT_LOGIN_USER=0).
 #  This will remove it from the system, possibly rendering you unable to log in.
 #
-#  SSH access can be disabled by setting OFEAT_LOGIN_USER_SSH=0.
+#  SSH access can be disabled by setting OFEAT_LOGIN_USER_SSH=0
+#  and fine-tuned via OFEAT_LOGIN_USER_SSH_<access_group>=0|1.
 #
 OFEAT_LOGIN_USER=1
 OFEAT_LOGIN_USER_SSH=1
+OFEAT_LOGIN_USER_SSH_SHELL=1
+OFEAT_LOGIN_USER_SSH_FORWARDING=0
 OCONF_LOGIN_USER='cosmo'
 
 # unprivileged user
@@ -136,12 +139,18 @@ OCONF_UNPRIV_UID='1001'
 #  Notes:
 #    - doas(1) will be configured for that user only,
 #      overriding any other configuration
-#    - will unconditionally enable sshd configuration
+#    - OFEAT_CTRL_USER_SSH defaults to 1
+#      (capped by OFEAT_CTRL_USER)
+#    - OFEAT_CTRL_USER_SSH=1 will enable sshd configuration,
+#      regardless of OFEAT_SSHD_CONFIG
 #
 OFEAT_CTRL_USER=0
 OFEAT_CTRL_USER_RAMDISK=1
 OCONF_CTRL_USER='ctrl'
 OCONF_CTRL_UID='999'
+OFEAT_CTRL_USER_SSH=1
+OFEAT_CTRL_USER_SSH_SHELL=1
+OFEAT_CTRL_USER_SSH_FORWARDING=0
 OCONF_CTRL_SSH_KEY=''
 OCONF_CTRL_SSH_FROM=''
 
@@ -216,9 +225,42 @@ OCONF_RAMDISK_VAR_LOG=50
 
 # Whether to generate /etc/ssh/sshd_config from template
 #
-#   Basic configuration,
-#   only the login user will be allowed to log in (OCONF_LOGIN_USER).
+#   Basic and very restrictive configuration.
+#
+#   Access is granted based on group membership ("ssh-<access>"):
+#
+#     - Only members in the 'login' this group may log in,
+#       regardless of any other ssh-* membership
+#
+#     - The 'shell' group grants access to a PTY
+#
+#     - The 'forwarding' group enables TCP forwarding
+#
+#   The names and ids of these groups may be changed below.
+#
+#   For the builtin user accounts,
+#   the default permissions are as follows:
+#
+#     - login  (OCONF_LOGIN_USER)  : login, shell
+#     - ctrl   (OCONF_CTRL_USER)   : login, shell
+#     - unpriv (OCONF_UNPRIV_USER) : no access [not configurable]
+#     - root   (<system user>)     : no access [not configurable]
+#
+#   Existing permissions will be revoked on upgrade IFF
+#     - the appropriate ssh- group is defined
+#     - and OFEAT_<user>_SSH_<name> is set to 0
+#
 OFEAT_SSHD_CONFIG=1
+
+# SSH access group names and their ids, mandatory
+OCONF_SSHD_GROUP_LOGIN="ssh-login"
+OCONF_SSHD_GID_LOGIN="900"
+
+OCONF_SSHD_GROUP_SHELL="ssh-shell"
+OCONF_SSHD_GID_SHELL="901"
+
+OCONF_SSHD_GROUP_FORWARDING="ssh-forwarding"
+OCONF_SSHD_GID_FORWARDING="902"
 
 
 # Hardware Quirks
