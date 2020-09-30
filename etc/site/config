@@ -262,6 +262,10 @@ OCONF_SSHD_GID_SHELL="901"
 OCONF_SSHD_GROUP_FORWARDING="ssh-forwarding"
 OCONF_SSHD_GID_FORWARDING="902"
 
+# Optionally force SSH host key regeneration by nuking existing keys
+# This will remove all existing host key files from /etc/ssh
+OFEAT_SSHD_FORCE_REGEN_KEYS=0
+
 
 # Hardware Quirks
 # ---------------
