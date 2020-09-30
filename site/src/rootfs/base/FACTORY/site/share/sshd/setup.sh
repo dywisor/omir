@@ -7,6 +7,7 @@ sshd_setup() {
     dodir_mode "${SSHD_SYSTEM_AUTH_KEYS_DIR}" 0711 'root:wheel' || return
     sshd_setup_create_sshd_config "${@}" || return
     sshd_setup_create_host_keys || return
+    sshd_setup_disable_rc_keygen || return
 }
 
 
@@ -67,4 +68,17 @@ _sshd_setup_gen_sshd_config() {
 
 sshd_setup_create_sshd_config() {
     dofile "${SSHD_CONF_FILE}" 0600 'root:wheel' _sshd_setup_gen_sshd_config "${@}"
+}
+
+# sshd_setup_disable_rc_keygen()
+#
+#  Disable ssh-keygen in /etc/rc so that
+#  unwanted keys do not get recreated on every boot.
+#
+sshd_setup_disable_rc_keygen() {
+    dofile_site '/etc/rc' 0644 'root:wheel' gen_sshd_setup_disable_rc_keygen
+}
+
+gen_sshd_setup_disable_rc_keygen() {
+    < /etc/rc sed -r -e 's,^([[:space:]]*)(ssh-keygen.*)$,\1#\2,'
 }
