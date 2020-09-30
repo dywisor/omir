@@ -68,7 +68,7 @@ gen_sshd_config_base() {
     allow_users="${1:?}"
 
 cat << EOF
-HostKeyAlgorithms ssh-ed25519,ssh-rsa
+HostKeyAlgorithms ssh-ed25519,rsa-sha2-512
 MACs hmac-sha2-512-etm@openssh.com,umac-128-etm@openssh.com
 KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512
 Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com
