@@ -253,6 +253,10 @@ OCONF_RAMDISK_VAR_LOG=50
 OFEAT_SSHD_CONFIG=1
 
 # SSH access group names and their ids, mandatory
+#
+#  An error is raised if a group is missing but its gid is already taken.
+#  If a group with that name does already exist, its gid will remain unchanged.
+#
 OCONF_SSHD_GROUP_LOGIN="ssh-login"
 OCONF_SSHD_GID_LOGIN="900"
 
