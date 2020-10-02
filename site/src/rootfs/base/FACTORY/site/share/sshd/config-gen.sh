@@ -6,6 +6,7 @@
 #      OCONF_SSHD_GROUP_LOGIN
 #      OCONF_SSHD_GROUP_SHELL
 #      OCONF_SSHD_GROUP_FORWARDING
+#      OCONF_SSHD_GROUP_CHROOT_HOME
 #
 # sshd config generator
 #
@@ -24,6 +25,10 @@
 #
 #  - forwarding group (OCONF_SSHD_GROUP_FORWARDING)
 #    Users in this group may use tcp forwarding.
+#
+#  - chroot-home group (OCONF_SSHD_GROUP_CHROOT_HOME)
+#    Users in this group are restricted to their home directory
+#    (using ChrootDirectory).
 #
 # Authorized keys are read from /etc/ssh/authorized_keys/<user_name>.
 # By default, users of the login group may read but not modify
@@ -103,6 +108,14 @@ cat << EOF
 
 Match Group ${OCONF_SSHD_GROUP_FORWARDING}
     AllowTcpForwarding yes
+EOF
+fi
+
+if [ -n "${OCONF_SSHD_GROUP_CHROOT_HOME-}" ]; then
+cat << EOF
+
+Match Group ${OCONF_SSHD_GROUP_CHROOT_HOME}
+    ChrootDirectory %h
 EOF
 fi
 }

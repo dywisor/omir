@@ -12,6 +12,7 @@ user_set_ssh_access() {
     local can_login
     local can_shell
     local can_fwd
+    local chroot_home
 
     var_ns="${1:?}"
     var_feat="OFEAT_${var_ns}"
@@ -28,16 +29,19 @@ user_set_ssh_access() {
     if test "${can_login}" -eq 1 2>/dev/null; then
         eval "can_shell=\"\${${var_feat}_SSH_SHELL:-0}\""
         eval "can_fwd=\"\${${var_feat}_SSH_FORWARDING:-0}\""
+        eval "chroot_home=\"\${${var_feat}_SSH_CHROOT_HOME:-0}\""
     else
         can_shell=0
         can_fwd=0
+        chroot_home=0   # debatable
     fi
 
     print_info "Configuring SSH access for user ${user_name}:"
-    print_info "  login=${can_login} shell=${can_shell} forwarding=${can_fwd}"
+    print_info "  login=${can_login} shell=${can_shell} forwarding=${can_fwd} chroot_home=${chroot_home}"
     autodie user_set_ssh_login "${user_name}" "${can_login}"
     autodie user_set_ssh_shell "${user_name}" "${can_shell}"
     autodie user_set_ssh_forwarding "${user_name}" "${can_fwd}"
+    autodie user_set_ssh_chroot_home "${user_name}" "${chroot_home}"
 }
 
 # user_set_ssh_login ( user_name, status )
@@ -53,6 +57,11 @@ user_set_ssh_shell() {
 # user_set_ssh_forwarding ( user_name, status )
 user_set_ssh_forwarding() {
     _user_set_ssh_access "${OCONF_SSHD_GROUP_FORWARDING:?}" "${@}"
+}
+
+# user_set_ssh_chroot_home ( user_name, status )
+user_set_ssh_chroot_home() {
+    _user_set_ssh_access "${OCONF_SSHD_GROUP_CHROOT_HOME:?}" "${@}"
 }
 
 # _user_set_ssh_access ( group_name, user_name, status )

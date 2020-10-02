@@ -12,7 +12,8 @@ if feat_check_sshd; then
     set -- \
         "${OCONF_SSHD_GROUP_LOGIN-}" "${OCONF_SSHD_GID_LOGIN-}" \
         "${OCONF_SSHD_GROUP_SHELL-}" "${OCONF_SSHD_GID_SHELL-}" \
-        "${OCONF_SSHD_GROUP_FORWARDING-}" "${OCONF_SSHD_GID_FORWARDING-}"
+        "${OCONF_SSHD_GROUP_FORWARDING-}" "${OCONF_SSHD_GID_FORWARDING-}" \
+        "${OCONF_SSHD_GROUP_CHROOT_HOME-}" "${OCONF_SSHD_GID_CHROOT_HOME-}"
 fi
 
 while [ $# -gt 0 ]; do

@@ -236,6 +236,10 @@ OCONF_RAMDISK_VAR_LOG=50
 #
 #     - The 'forwarding' group enables TCP forwarding
 #
+#     - The 'chroot-home' group restricts users to their home directory.
+#       In conjunction with 'forwarding',
+#       this can be used to create restricted jump users.
+#
 #   The names and ids of these groups may be changed below.
 #
 #   For the builtin user accounts,
@@ -265,6 +269,9 @@ OCONF_SSHD_GID_SHELL="901"
 
 OCONF_SSHD_GROUP_FORWARDING="ssh-forwarding"
 OCONF_SSHD_GID_FORWARDING="902"
+
+OCONF_SSHD_GROUP_CHROOT_HOME="ssh-chroot-home"
+OCONF_SSHD_GID_CHROOT_HOME="903"
 
 # Optionally force SSH host key regeneration by nuking existing keys
 # This will remove all existing host key files from /etc/ssh
