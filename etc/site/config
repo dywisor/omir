@@ -134,7 +134,7 @@ OCONF_UNPRIV_UID='1001'
 #  you may also configure a single key here.
 #
 #  SSH access can be further restricted to select hosts
-#  (IP addresses and/or network).
+#  (IP addresses and/or network).  [CURRENTLY BROKEN - DROP OR REIMPLEMENT TODO]
 #
 #  Notes:
 #    - doas(1) will be configured for that user only,
