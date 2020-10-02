@@ -35,9 +35,13 @@ autodie chmod -h -- a+x "${user_home}"
 
 # ctrl user enables sshd, do feat_sshd check nonetheless
 if feat_check_sshd; then
-    autodie sshd_dofile_system_auth_keys default "${OCONF_CTRL_SSH_KEY-}"
     autodie user_set_ssh_access CTRL_USER
-    # NOTE: can-login check dropped
+
+    sshd_auth_keys_copy_keys_from_home=0
+    autodie sshd_dofile_system_auth_keys default "${OCONF_CTRL_SSH_KEY-}"
+
+    [ -n "${sshd_auth_keys_can_login}" ] || \
+        print_err "${user_name} will not be able to log in via SSH."
 fi
 
 autodie dofile_site "${doas_conf}" 0600 'root:wheel' gen_ctrl_doas_conf
