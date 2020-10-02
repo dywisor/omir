@@ -70,6 +70,22 @@ OFEAT_PKG_INSTALL=1
 OCONF_PKG_INSTALL="vim--no_x11"
 
 # feature: Whether to install latest Python 3
+#
+#   Together with some other features noted below,
+#   this allows for integration with Ansible for 'full' deployment
+#   (provisioning + configuration management):
+#
+#     - Python is required for executing most Ansible modules
+#       (alternatively, the 'raw' module could be used to bootstrap Python)
+#
+#     - The ctrl user (OFEAT_CTRL_USER) grants root privileges via doas
+#
+#     - The 'installed' flag file (OFEAT_FLAG_FILE_INSTALLED)
+#       may be used to poll the "installed?" status via SSH
+#       (SSH reachable and flag file present := installation finished)
+#
+#       (No other signaling mechanism implemented so far.)
+#
 OFEAT_PKG_PYTHON_LATEST=0
 
 
