@@ -12,6 +12,14 @@ feat_check_sshd() {
         localconfig_add "OFEAT_SSHD_CONFIG" "1"
         return 0
 
+    elif \
+        [ "${OFEAT_SSH_JUMP_USER:-0}" -eq 1 ] && \
+        [ "${OFEAT_SSH_JUMP_USER_SSH:-1}" -eq 1 ]
+    then
+        localconfig_write_tag "SSH server implicitly enabled by ssh jump user"
+        localconfig_add "OFEAT_SSHD_CONFIG" "1"
+        return 0
+
     else
         return 1
     fi

@@ -158,6 +158,31 @@ OFEAT_CTRL_USER_SSH_FORWARDING=0
 OCONF_CTRL_SSH_KEY=''
 OCONF_CTRL_SSH_FROM=''
 
+# jump user
+#
+#  Enable OFEAT_SSH_JUMP_USER to create a very restricted user account
+#  that can be used for turning this machine into a SSH jumphost using
+#
+#    ssh -o ProxyCommand="ssh -W %h:%p <jumphost>" <target>
+#
+#  where <jumphost> is "this" machine and target is reachable from <jumphost>.
+#
+#  Enabling this user enables sshd configuration as well.
+#
+#  Details:
+#    - no login shell (/sbin/nologin)
+#    - password disabled
+#    - readonly, empty home directory
+#    - ssh access
+#      - login
+#      - forwarding enabled
+#      - no shell (pty)
+#      - chroot to home
+#
+OFEAT_SSH_JUMP_USER=0
+OCONF_SSH_JUMP_UID='998'
+OCONF_SSH_JUMP_USER='jump'
+OCONF_SSH_JUMP_SSH_KEY=''
 
 # Git
 # ---
