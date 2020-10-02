@@ -131,7 +131,7 @@ _init_user_home_ramdisk() {
 }
 
 # setup_ramdisk_home (
-#    ramdisk_size_m:=10, ramdisk_copy_skel:=0,
+#    ramdisk_size_m:=10, ramdisk_copy_skel:=0, ramdisk_nuke_home:=0,
 #    **user_name, **user_uid, **user_gid, **user_home,
 #    **user_home_skel!
 # )
@@ -155,7 +155,14 @@ setup_ramdisk_home() {
         autodie rm -- "${user_home}"
 
     elif [ -d "${user_home}" ]; then
-        if ! rmdir -- "${user_home}" 2>/dev/null; then
+        if rmdir -- "${user_home}" 2>/dev/null; then
+            :
+
+        elif mv -- "${user_home}" "${user_home}.old"; then
+            # ^ this may move <user_home> to <user_home>.old/<basename(user_home)>
+            print_err "Manual cleanup of underlying ${user_home}.old required."
+
+        else
             print_err "Manual cleanup of underlying ${user_home} required."
 
             # lock down old user home
