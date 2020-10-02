@@ -110,3 +110,27 @@ join_fspath() {
 		shift
 	done
 }
+
+# int pick_config_file ( basepath, **v0! )
+#
+#   Sets v0 to "<basepath>.local" if present and "<basepath>" otherwise.
+#   Returns 0 if any of these files exist, else non-zero.
+#
+pick_config_file() {
+	if [ -z "${1-}" ]; then
+		v0=""
+		return 64
+
+	elif [ -r "${1}.local" ]; then
+		v0="${1}.local"
+		return 0
+
+	elif [ -r "${1}" ]; then
+		v0="${1}"
+		return 0
+
+	else
+		v0=""
+		return 1
+	fi
+}
