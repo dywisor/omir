@@ -49,10 +49,8 @@ autodie chmod 0711 "${user_home}"
 # ctrl user enables sshd, do feat_sshd check nonetheless
 if feat_check_sshd; then
     autodie sshd_dofile_system_auth_keys default "${OCONF_CTRL_SSH_KEY-}"
-
-    if [ -z "${sshd_auth_keys_can_login}" ]; then
-        die "No SSH keys allowed for ctrl user, will be unable to login"
-    fi
+    autodie user_set_ssh_access CTRL_USER
+    # NOTE: can-login check dropped
 fi
 
 autodie dofile_site "${doas_conf}" 0600 'root:wheel' gen_ctrl_doas_conf
