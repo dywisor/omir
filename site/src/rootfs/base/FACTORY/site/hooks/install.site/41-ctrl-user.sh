@@ -15,36 +15,23 @@ gen_ctrl_doas_conf() {
         "${user_name}"
 }
 
-setup_ctrl_ramdisk_home() {
-    local skel
-    local ramdisk_size
+set -- "${OCONF_CTRL_USER}" "${OCONF_CTRL_UID}" '/bin/sh'
 
-    ramdisk_size=120
+if \
+    [ "${OFEAT_CTRL_USER_RAMDISK:-0}" -eq 1 ] && \
+    [ -n "${HW_USERMEM_M}" ] && [ ${HW_USERMEM_M} -gt 300 ]
+then
+    autodie create_user_ramdisk_empty_home 120 "${@}"
+    user_real_home="${user_home:?}"
+    user_home="${user_home_skel:?}"
 
-    print_info "Setting up ramdisk home for ${user_name}"
+else
+    autodie create_user_empty_home "${@}"
+    user_real_home="${user_home:?}"
+fi
 
-    # try to remove empty home
-    rmdir -- "${user_home}" 2>/dev/null || \
-        print_err "Manual cleanup of underlying ${user_home} required."
-
-    skel="/skel/home"
-    autodie mkdir -p -- "${skel}"
-    autodie dopath "${skel}" 0711 'root:wheel'
-
-    skel="${skel}/${user_name}"
-    autodie mkdir -p -- "${skel}"
-    autodie dopath "${skel}" 0771 "root:${user_gid}"
-
-    autodie fstab_add_skel_mfs "${skel}" "${user_home}" "${ramdisk_size}" -o "rw,nodev,nosuid"
-}
-
-
-autodie create_user_empty_home \
-    "${OCONF_CTRL_USER}" \
-    "${OCONF_CTRL_UID}" \
-    '/bin/sh'
-
-autodie chmod 0711 "${user_home}"
+# for Ansible temporary directories: other users must be able to cross user_home
+autodie chmod -h -- a+x "${user_home}"
 
 # ctrl user enables sshd, do feat_sshd check nonetheless
 if feat_check_sshd; then
@@ -54,9 +41,3 @@ if feat_check_sshd; then
 fi
 
 autodie dofile_site "${doas_conf}" 0600 'root:wheel' gen_ctrl_doas_conf
-
-if [ "${OFEAT_CTRL_USER_RAMDISK:-0}" -eq 1 ]; then
-    if [ -n "${HW_USERMEM_M}" ] && [ ${HW_USERMEM_M} -gt 300 ]; then
-        autodie setup_ctrl_ramdisk_home
-    fi
-fi

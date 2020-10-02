@@ -8,6 +8,26 @@ create_user_empty_home() {
     _create_user 'empty' "${@}"
 }
 
+create_user_ramdisk_home() {
+    local user_ramdisk_size
+    local user_ramdisk_copy_skel
+
+    user_ramdisk_size="${1:?}"; shift
+    user_ramdisk_copy_skel=1
+
+    _create_user 'ramdisk' "${@}"
+}
+
+create_user_ramdisk_empty_home() {
+    local user_ramdisk_size
+    local user_ramdisk_copy_skel
+
+    user_ramdisk_size="${1:?}"; shift
+    user_ramdisk_copy_skel=0
+
+    _create_user 'ramdisk' "${@}"
+}
+
 create_user_no_home() {
     _create_user 'none' "${@}"
 }
@@ -55,7 +75,7 @@ _create_user() {
         'none')
             arg_home='/var/empty'
         ;;
-        'skel'|'empty')
+        'skel'|'empty'|'ramdisk')
             [ -n "${arg_home}" ] || arg_home="/home/${arg_name}"
         ;;
         *)
@@ -104,4 +124,61 @@ _init_user_home_empty() {
     DIRMODE=0700
     autodie dodir "${user_home:?}"
     autodie dopath "${user_home:?}" 0700 "${user_uid}:${user_gid}"
+}
+
+_init_user_home_ramdisk() {
+    setup_ramdisk_home "${user_ramdisk_size-}" "${user_ramdisk_copy_skel-}"
+}
+
+# setup_ramdisk_home (
+#    ramdisk_size_m:=10, ramdisk_copy_skel:=0,
+#    **user_name, **user_uid, **user_gid, **user_home,
+#    **user_home_skel!
+# )
+#
+setup_ramdisk_home() {
+    user_home_skel=
+
+    local skel_root
+    local ramdisk_size
+    local ramdisk_copy_skel
+
+    ramdisk_size="${1:-10}"
+    ramdisk_copy_skel="${2:-0}"
+
+    print_info "Setting up ramdisk home for ${user_name}"
+
+    # try to remove empty home
+    # race condition tolerated here
+    if [ -h "${user_home}" ]; then
+        # rm oder compare link dest
+        autodie rm -- "${user_home}"
+
+    elif [ -d "${user_home}" ]; then
+        if ! rmdir -- "${user_home}" 2>/dev/null; then
+            print_err "Manual cleanup of underlying ${user_home} required."
+
+            # lock down old user home
+            autodie dopath "${user_home}" 0750 "root:${user_gid}" "${user_home}"
+        fi
+    fi
+
+    skel_root="/skel/home"
+    autodie mkdir -p -- "${skel_root}"
+    autodie dopath "${skel_root}" 0711 'root:wheel'
+
+    user_home_skel="${skel_root}/${user_name}"
+    autodie mkdir -p -- "${user_home_skel}"
+
+    if [ "${ramdisk_copy_skel}" -eq 1 ] && [ -d /etc/skel ]; then
+        autodie cp -a -- /etc/skel/. "${user_home_skel}/."
+        autodie chown -R -- "${user_uid}:${user_gid}" "${user_home_skel}/"
+    fi
+
+    # chown/chmod after copy-skel
+    autodie dopath "${user_home_skel}" 0770 "root:${user_gid}"
+
+    autodie fstab_add_skel_mfs \
+        "${user_home_skel}" "${user_home}" \
+        "${ramdisk_size}" -o "rw,nodev,nosuid"
 }
