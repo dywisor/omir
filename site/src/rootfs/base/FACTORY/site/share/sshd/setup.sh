@@ -4,7 +4,7 @@
 #
 sshd_setup() {
     dodir_mode "${SSHD_CONFDIR}" 0755 'root:wheel' || return
-    dodir_mode "${SSHD_SYSTEM_AUTH_KEYS_DIR}" 0711 'root:wheel' || return
+    dodir_mode "${SSHD_SYSTEM_AUTH_KEYS_DIR}" 0710 "root:${OCONF_SSHD_GROUP_LOGIN:-wheel}" || return
     sshd_setup_create_sshd_config || return
     sshd_setup_create_host_keys || return
     sshd_setup_disable_rc_keygen || return

@@ -39,7 +39,7 @@ sshd_dofile_system_auth_keys() {
     sshd_auth_keys_mode='0640'
     sshd_auth_keys_owner="0:${user_gid:-0}"
 
-    _sshd_lazy_dodir_auth_keys_dir 0711 'root:wheel' || return
+    _sshd_lazy_dodir_auth_keys_dir 0710 "root:${OCONF_SSHD_GROUP_LOGIN:-wheel}" || return
     _sshd_dofile_auth_keys "${@}" || return
 }
 
