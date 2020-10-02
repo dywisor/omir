@@ -2,7 +2,7 @@
 
 # sshd_dofile_system_auth_keys (
 #    [gen_auth_keys_func:=<default>], [*func_args],
-#    **user_name, **user_home, **user_uid, **user_gid,
+#    **user_name, **user_uid, **user_gid,
 #    **sshd_auth_keys_path!, **sshd_auth_keys_dir!,
 #    **sshd_auth_keys_mode!, **sshd_auth_keys_owner!
 # )
@@ -24,7 +24,6 @@ sshd_dofile_system_auth_keys() {
 
 _sshd_get_auth_keys_path_prereq() {
     [ -n "${user_name-}" ] || return 1
-    [ -n "${user_home-}" ] || return 1
 }
 
 
