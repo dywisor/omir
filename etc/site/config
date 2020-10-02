@@ -247,7 +247,7 @@ OFEAT_RAMDISK_USERDIR=1
 #   must be configured separately (and manually) in syslog.conf(5).
 #
 #   Depends on OFEAT_RAMDISK.
-OFEAT_RAMDISK_LOG=1
+OFEAT_RAMDISK_LOG=0
 
 # Additional memory file systems may be configured below
 # independently of OFEAT_RAMDISK:
