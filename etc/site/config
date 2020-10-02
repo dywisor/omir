@@ -67,7 +67,7 @@ OFEAT_SYSPATCH=1
 OFEAT_PKG_INSTALL=1
 
 # List of packages to be installed
-OCONF_PKG_INSTALL="rsync-- vim--no_x11"
+OCONF_PKG_INSTALL="vim--no_x11"
 
 # feature: Whether to install latest Python 3
 OFEAT_PKG_PYTHON_LATEST=0
