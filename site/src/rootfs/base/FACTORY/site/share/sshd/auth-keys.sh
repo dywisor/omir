@@ -56,7 +56,8 @@ sshd_get_system_auth_keys_path() {
 
 
 # @stdout sshd_default_gen_sshd_auth_keys (
-#    [*extra_keys], **user_name
+#    [*extra_keys], **user_name,
+#    **sshd_auth_keys_copy_keys_from_home:=0, **user_home=
 # )
 #   also reads factory file authorized_keys.<user_name>
 #
@@ -72,6 +73,16 @@ sshd_default_gen_sshd_auth_keys() {
 
         elif [ ${?} -ne 1 ]; then
             die "Failed to read ${v0}"
+        fi
+    fi
+
+    if \
+        [ "${sshd_auth_keys_copy_keys_from_home:-0}" -eq 1 ] && \
+        [ -n "${user_home-}" ]
+    then
+        v0="${user_home}/.ssh/authorized_keys"
+        if [ -f "${v0}" ] && grep -E -- '^[^#]' "${v0:?}"; then
+            sshd_auth_keys_can_login='home'
         fi
     fi
 
