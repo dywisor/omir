@@ -1,4 +1,7 @@
 #!/bin/sh
+##
+## This is the legacy sshd config generator grants access on a per-user basis.
+##
 # Keep this file mostly self-sufficient - no external deps except for:
 #
 #   - vars.sh
