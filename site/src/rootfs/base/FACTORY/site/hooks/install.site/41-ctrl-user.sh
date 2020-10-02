@@ -17,17 +17,25 @@ gen_ctrl_doas_conf() {
 
 set -- "${OCONF_CTRL_USER}" "${OCONF_CTRL_UID}" '/bin/sh'
 
-if \
-    [ "${OFEAT_CTRL_USER_RAMDISK:-0}" -eq 1 ] && \
-    [ -n "${HW_USERMEM_M}" ] && [ ${HW_USERMEM_M} -gt 300 ]
-then
-    autodie create_user_ramdisk_empty_home 120 "${@}"
-    user_real_home="${user_home:?}"
-    user_home="${user_home_skel:?}"
+did_create_user=0
 
-else
+if [ "${OFEAT_CTRL_USER_RAMDISK:-0}" -eq 1 ]; then
+    size="${OCONF_CTRL_USER_RAMDISK_SIZE:-120}"
+
+    if [ -z "${HW_USERMEM_M}" ] || [ $(( HW_USERMEM_M - size )) -lt 200 ]; then
+        print_err "Disabling ramdisk for ctrl user, not enough memory available."
+    else
+        autodie create_user_ramdisk_empty_home "${size}" "${@}"
+        user_real_home="${user_home:?}"
+        user_home="${user_home_skel:?}"
+        did_create_user=1
+    fi
+fi
+
+if [ ${did_create_user} -eq 0 ]; then
     autodie create_user_empty_home "${@}"
     user_real_home="${user_home:?}"
+    did_create_user=1  # redundant
 fi
 
 # for Ansible temporary directories: other users must be able to cross user_home
