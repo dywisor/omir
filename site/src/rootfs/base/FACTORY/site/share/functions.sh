@@ -24,7 +24,6 @@ load_lib user-info
 load_lib group-mgmt-add
 load_lib group-mgmt-del-member
 load_lib user-mgmt-add
-load_lib user-mgmt-ssh-access
 load_lib user-mgmt-del
 load_lib user
 load_lib pkg
