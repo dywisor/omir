@@ -25,7 +25,12 @@ if [ "${OFEAT_LOGIN_USER_RAMDISK:-0}" -eq 1 ]; then
     if [ -z "${HW_USERMEM_M}" ] || [ $(( HW_USERMEM_M - size )) -lt 200 ]; then
         print_err "Disabling ramdisk for login user, not enough memory available."
     else
-        autodie setup_ramdisk_home "${size}" 1
+        # size, copy_skel, wipe_home
+        autodie setup_ramdisk_home \
+            "${size}" \
+            1 \
+            "${OFEAT_LOGIN_USER_RAMDISK_WIPE_HOME:-0}"
+
         user_home="${user_home_skel:?}"
         using_ramdisk=1
     fi

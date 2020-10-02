@@ -131,7 +131,7 @@ _init_user_home_ramdisk() {
 }
 
 # setup_ramdisk_home (
-#    ramdisk_size_m:=10, ramdisk_copy_skel:=0, ramdisk_nuke_home:=0,
+#    ramdisk_size_m:=10, ramdisk_copy_skel:=0, ramdisk_wipe_home:=0,
 #    **user_name, **user_uid, **user_gid, **user_home,
 #    **user_home_skel!
 # )
@@ -142,9 +142,11 @@ setup_ramdisk_home() {
     local skel_root
     local ramdisk_size
     local ramdisk_copy_skel
+    local ramdisk_wipe_home
 
     ramdisk_size="${1:-10}"
     ramdisk_copy_skel="${2:-0}"
+    ramdisk_wipe_home="${3:-0}"
 
     print_info "Setting up ramdisk home for ${user_name}"
 
@@ -157,6 +159,10 @@ setup_ramdisk_home() {
     elif [ -d "${user_home}" ]; then
         if rmdir -- "${user_home}" 2>/dev/null; then
             :
+
+        elif [ "${ramdisk_wipe_home}" -eq 1 ]; then
+            print_info "Wiping old home: ${user_home}"
+            autodie rm -rf -- "${user_home}"
 
         elif mv -- "${user_home}" "${user_home}.old"; then
             # ^ this may move <user_home> to <user_home>.old/<basename(user_home)>
