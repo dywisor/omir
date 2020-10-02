@@ -76,9 +76,9 @@ sshd_setup_create_sshd_config() {
 #  unwanted keys do not get recreated on every boot.
 #
 sshd_setup_disable_rc_keygen() {
-    dofile_site '/etc/rc' 0644 'root:wheel' gen_sshd_setup_disable_rc_keygen
+    dofile_site '/etc/rc' 0644 'root:wheel' _sshd_setup_gen_disable_rc_keygen
 }
 
-gen_sshd_setup_disable_rc_keygen() {
+_sshd_setup_gen_disable_rc_keygen() {
     < /etc/rc sed -r -e 's,^([[:space:]]*)(ssh-keygen.*)$,\1#\2,'
 }
