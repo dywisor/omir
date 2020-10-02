@@ -17,6 +17,19 @@ sshd_setup_create_host_keys() {
 
     print_action "Creating SSH host keys"
 
+    if [ "${OFEAT_SSHD_FORCE_REGEN_KEYS:-0}" -eq 1 ]; then
+        (
+            set +f
+            set -- "${SSHD_CONFDIR}/"ssh_host_*_key*
+            set -f
+
+            if [ $# -gt 0 ] && [ -f "${1}" ]; then
+                print_info "Removing old ssh keys (forced): ${*}"
+                rm -f -- "${@}"
+            fi
+        ) || print_err "Failed to remove old ssh keys"
+    fi
+
     for key_type in ${SSHD_HOST_KEY_TYPES:?}; do
         key_file="${SSHD_CONFDIR}/ssh_host_${key_type}_key"
 
