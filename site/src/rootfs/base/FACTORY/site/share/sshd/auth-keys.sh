@@ -1,27 +1,5 @@
 #!/bin/sh
 
-# sshd_dofile_user_auth_keys (
-#    [gen_auth_keys_func:=<default>], [*func_args],
-#    **user_name, **user_home, **user_uid, **user_gid,
-#    **sshd_auth_keys_path!, **sshd_auth_keys_dir!,
-#    **sshd_auth_keys_mode!, **sshd_auth_keys_owner!
-# )
-#
-sshd_dofile_user_auth_keys() {
-    sshd_auth_keys_can_login=
-    sshd_auth_keys_mode=
-    sshd_auth_keys_owner=
-
-    sshd_get_user_auth_keys_path || return
-
-    sshd_auth_keys_mode='0600'
-    sshd_auth_keys_owner="${user_uid:-0}:${user_gid:-0}"
-
-    _sshd_lazy_dodir_auth_keys_dir 0700 "${sshd_auth_keys_owner}" || return
-    _sshd_dofile_auth_keys "${@}" || return
-}
-
-
 # sshd_dofile_system_auth_keys (
 #    [gen_auth_keys_func:=<default>], [*func_args],
 #    **user_name, **user_home, **user_uid, **user_gid,
@@ -66,26 +44,6 @@ _sshd_lazy_dodir_auth_keys_dir() {
     [ -z "${sshd_auth_keys_dir}" ] || \
     [ -d "${sshd_auth_keys_dir}" ] || \
     dodir_mode "${sshd_auth_keys_dir}" "${@}"
-}
-
-
-sshd_get_user_auth_keys_path() {
-    _sshd_set_auth_keys_path
-
-    _sshd_get_auth_keys_path_prereq || return 1
-
-    fspath_check_safe_relpath "${SSHD_USER_AUTH_KEYS_FILE}" || return 3
-
-    # FIXME: check that somewhere else (and properly)
-    # For now, allow only paths in /home/ and /FACTORY/
-    # that do not include references to parent directories
-    ! fspath_check_parent_relpath "${user_home}" || return 3
-    case "${user_home}" in
-        '/home/'*|'/FACTORY/'*) : ;;
-        *) return 2 ;;
-    esac
-
-    _sshd_set_auth_keys_path "${user_home%/}/${SSHD_USER_AUTH_KEYS_FILE}"
 }
 
 
