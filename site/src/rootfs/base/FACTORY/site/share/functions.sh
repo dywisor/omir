@@ -19,7 +19,10 @@ load_lib install
 load_lib site-prep
 load_lib site-dofile
 load_lib site-cc
+load_lib group-info
 load_lib user-info
+load_lib group-mgmt-add
+load_lib group-mgmt-del-member
 load_lib user-mgmt-add
 load_lib user-mgmt-del
 load_lib user

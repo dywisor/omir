@@ -15,50 +15,41 @@ gen_ctrl_doas_conf() {
         "${user_name}"
 }
 
-setup_ctrl_ramdisk_home() {
-    local skel
-    local ramdisk_size
+set -- "${OCONF_CTRL_USER}" "${OCONF_CTRL_UID}" '/bin/sh'
 
-    ramdisk_size=120
+did_create_user=0
 
-    print_info "Setting up ramdisk home for ${user_name}"
+if [ "${OFEAT_CTRL_USER_RAMDISK:-0}" -eq 1 ]; then
+    size="${OCONF_CTRL_USER_RAMDISK_SIZE:-120}"
 
-    # try to remove empty home
-    rmdir -- "${user_home}" 2>/dev/null || \
-        print_err "Manual cleanup of underlying ${user_home} required."
+    if [ -z "${HW_USERMEM_M}" ] || [ $(( HW_USERMEM_M - size )) -lt 200 ]; then
+        print_err "Disabling ramdisk for ctrl user, not enough memory available."
+    else
+        autodie create_user_ramdisk_empty_home "${size}" "${@}"
+        user_real_home="${user_home:?}"
+        user_home="${user_home_skel:?}"
+        did_create_user=1
+    fi
+fi
 
-    skel="/skel/home"
-    autodie mkdir -p -- "${skel}"
-    autodie dopath "${skel}" 0711 'root:wheel'
+if [ ${did_create_user} -eq 0 ]; then
+    autodie create_user_empty_home "${@}"
+    user_real_home="${user_home:?}"
+    did_create_user=1  # redundant
+fi
 
-    skel="${skel}/${user_name}"
-    autodie mkdir -p -- "${skel}"
-    autodie dopath "${skel}" 0771 "root:${user_gid}"
-
-    autodie fstab_add_skel_mfs "${skel}" "${user_home}" "${ramdisk_size}" -o "rw,nodev,nosuid"
-}
-
-
-autodie create_user_empty_home \
-    "${OCONF_CTRL_USER}" \
-    "${OCONF_CTRL_UID}" \
-    '/bin/sh'
-
-autodie chmod 0711 "${user_home}"
+# for Ansible temporary directories: other users must be able to cross user_home
+autodie chmod -h -- a+x "${user_home}"
 
 # ctrl user enables sshd, do feat_sshd check nonetheless
 if feat_check_sshd; then
+    autodie user_set_ssh_access CTRL_USER
+
+    sshd_auth_keys_copy_keys_from_home=0
     autodie sshd_dofile_system_auth_keys default "${OCONF_CTRL_SSH_KEY-}"
 
-    if [ -z "${sshd_auth_keys_can_login}" ]; then
-        die "No SSH keys allowed for ctrl user, will be unable to login"
-    fi
+    [ -n "${sshd_auth_keys_can_login}" ] || \
+        print_err "${user_name} will not be able to log in via SSH."
 fi
 
 autodie dofile_site "${doas_conf}" 0600 'root:wheel' gen_ctrl_doas_conf
-
-if [ "${OFEAT_CTRL_USER_RAMDISK:-0}" -eq 1 ]; then
-    if [ -n "${HW_USERMEM_M}" ] && [ ${HW_USERMEM_M} -gt 300 ]; then
-        autodie setup_ctrl_ramdisk_home
-    fi
-fi

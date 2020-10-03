@@ -2,52 +2,37 @@
 # Keep this file mostly self-sufficient - no external deps except for:
 #
 #   - vars.sh
+#   - OCONF_SSHD_GROUP_* variables:
+#      OCONF_SSHD_GROUP_LOGIN
+#      OCONF_SSHD_GROUP_SHELL
+#      OCONF_SSHD_GROUP_FORWARDING
+#      OCONF_SSHD_GROUP_CHROOT_HOME
 #
 # sshd config generator
-#
-# The gen_sshd_ functions write config fragments to stdout,
-# combine them to get a complete configuration:
 #
 # Call gen_sshd_config_base() to create the baseline configuration.
 # It creates a very restrictive configuration,
 # allowing neither shell login nor port forwardings.
-# Make sure to pass a list of allowed users to this function.
 #
-# Afterwards, the restrictions may be refined for individual users
-# with per-user Match blocks that can be created with the following helpers:
+# Access is granted based on group membership:
 #
-#   - gen_sshd_login_user ( user )
-#     For human users that may elevate to root using su(1):
-#     - shell: yes
-#     - port forwardings: no
-#     - chroot: none
-#     - authorized keys: in home directory [using default]
+#  - login group (OCONF_SSHD_GROUP_LOGIN)
+#    Only users in this group may log in via SSH,
+#    regardless of any other ssh access group membership.
 #
-#   - gen_sshd_ctrl_user ( user )
-#     For machine accounts, typically with doas(1) permissions:
-#     - shell: yes
-#     - port forwardings: no
-#     - chroot: none
-#     - authorized keys: /etc/ssh/authorized_keys/<user>
+#  - shell group (OCONF_SSHD_GROUP_SHELL)
+#    Users in this group get a PTY.
 #
-#   - gen_sshd_jump_user ( user )
-#     For users that jump through this host,
-#     without needing any shell access (ssh -J, ssh -o ProxyCommand=...):
-#     - shell: no
-#     - port forwardings: yes
-#     - chroot: home directory
-#     - authorized keys: /etc/ssh/authorized_keys/<user>
+#  - forwarding group (OCONF_SSHD_GROUP_FORWARDING)
+#    Users in this group may use tcp forwarding.
 #
-# Note that adding a Match block for a user that has not been given
-# to gen_sshd_config_base() will have no effect.
+#  - chroot-home group (OCONF_SSHD_GROUP_CHROOT_HOME)
+#    Users in this group are restricted to their home directory
+#    (using ChrootDirectory).
 #
-# The authorized keys behavior can be changed by passing
-# an override as second argument to these helpers,
-# see gen_sshd_frag_auth_keys() for possible values.
-#
-# After starting a match block with one of these helpers,
-# additional configuration can be appended to that block
-# by calling gen_sshd_frag_() functions.
+# Authorized keys are read from /etc/ssh/authorized_keys/<user_name>.
+# By default, users of the login group may read but not modify
+# their own authorized_keys file.
 #
 ## Note on disabling port forwardings for most users:
 ##
@@ -60,12 +45,9 @@
 ##   I have yet to find an equivalent solution for OpenBSD.
 ##
 
-# gen_sshd_config_base ( allow_users )
+# gen_sshd_config_base ( allow_groups )
 gen_sshd_config_base() {
-    local allow_users
     local iter
-
-    allow_users="${1:?}"
 
 cat << EOF
 HostKeyAlgorithms ssh-ed25519,rsa-sha2-512
@@ -81,7 +63,7 @@ done
 
 cat << EOF
 
-AllowUsers ${allow_users:?}
+AllowGroups ${OCONF_SSHD_GROUP_LOGIN:?}
 PermitRootLogin no
 
 AuthenticationMethods publickey
@@ -89,7 +71,7 @@ PasswordAuthentication no
 ChallengeResponseAuthentication no
 PubkeyAuthentication yes
 
-AuthorizedKeysFile	${SSHD_USER_AUTH_KEYS_FILE:?}
+AuthorizedKeysFile	${SSHD_SYSTEM_AUTH_KEYS_DIR}/%u
 
 GatewayPorts no
 PermitTunnel no
@@ -112,86 +94,28 @@ UseDNS no
 
 Subsystem sftp internal-sftp
 EOF
-}
 
-# gen_sshd_frag_match_user ( user )
-gen_sshd_frag_match_user() {
+if [ -n "${OCONF_SSHD_GROUP_SHELL-}" ]; then
 cat << EOF
 
-Match User ${1:?}
-EOF
-}
-
-# __gen_sshd_user ( default_auth_key, user, [auth_key] )
-__gen_sshd_user() {
-    gen_sshd_frag_match_user "${2:?}" || return
-    gen_sshd_frag_auth_keys "${3-${1?}}" || return
-}
-
-# gen_sshd_login_user ( user )
-gen_sshd_login_user() {
-    __gen_sshd_user '-' "${@}" || return
-    gen_sshd_frag_permit_tty || return
-}
-
-# gen_sshd_ctrl_user ( user )
-gen_sshd_ctrl_user() {
-    __gen_sshd_user '%u' "${@}" || return
-    gen_sshd_frag_permit_tty || return
-}
-
-# gen_sshd_jump_user ( user )
-gen_sshd_jump_user() {
-    __gen_sshd_user '%u' "${@}"
-    gen_sshd_frag_chroot_home || return
-    gen_sshd_frag_allow_tcp_forwarding || return
-}
-
-
-gen_sshd_frag_allow_tcp_forwarding() {
-cat << EOF
-    AllowTcpForwarding yes
-EOF
-}
-
-gen_sshd_frag_permit_tty() {
-cat << EOF
+Match Group ${OCONF_SSHD_GROUP_SHELL}
     PermitTTY yes
 EOF
-}
+fi
 
-gen_sshd_frag_chroot_home() {
+if [ -n "${OCONF_SSHD_GROUP_FORWARDING-}" ]; then
 cat << EOF
+
+Match Group ${OCONF_SSHD_GROUP_FORWARDING}
+    AllowTcpForwarding yes
+EOF
+fi
+
+if [ -n "${OCONF_SSHD_GROUP_CHROOT_HOME-}" ]; then
+cat << EOF
+
+Match Group ${OCONF_SSHD_GROUP_CHROOT_HOME}
     ChrootDirectory %h
 EOF
-}
-
-gen_sshd_frag_auth_keys() {
-    local arg
-    local auth_keys
-
-    arg="${1?}"
-
-    case "${arg}" in
-        /*)
-            auth_keys="${arg}"
-        ;;
-
-        ''|'_'|'-')
-            #auth_keys=
-            return 0
-        ;;
-
-        '@')
-            auth_keys='.ssh/authorized_keys'
-        ;;
-
-        *)
-            auth_keys="${SSHD_SYSTEM_AUTH_KEYS_DIR}/${arg}"
-        ;;
-    esac
-
-cat << EOF
-    AuthorizedKeysFile ${auth_keys}
-EOF
+fi
 }

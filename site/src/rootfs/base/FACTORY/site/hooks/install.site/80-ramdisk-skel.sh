@@ -13,6 +13,7 @@ if [ "${OFEAT_RAMDISK_USERDIR:-0}" -eq 1 ]; then
 
 	{
 	< /etc/passwd awk -F : \
+        -v ramskel_home="/skel/home" \
 		-v ramskel_users="${D}/users" \
 		-v ramlive_users="${RAMLIVE_ROOT}/users" \
 		-v min_uid=999 \
@@ -51,7 +52,9 @@ if [ "${OFEAT_RAMDISK_USERDIR:-0}" -eq 1 ]; then
 	}
 
 	(hot && ($6 ~ "^/(root$|home/)")) {
-		printf("[ ! -d \"%s\" ] || ln -fs -- \"%s\" \"%s/ram\"\n", $6, ramlive, $6);
+		printf("d=\"%s/%s\"\n", ramskel_home, $1);
+		printf("[ -d \"${d}\" ] || d=\"%s\"\n", $6);
+		printf("[ ! -d \"${d}\" ] || ln -fs -- \"%s\" \"${d}/ram\"\n", ramlive);
 	}
 
 	(hot) {

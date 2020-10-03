@@ -1,30 +1,8 @@
 #!/bin/sh
 
-# sshd_dofile_user_auth_keys (
-#    [gen_auth_keys_func:=<default>], [*func_args],
-#    **user_name, **user_home, **user_uid, **user_gid,
-#    **sshd_auth_keys_path!, **sshd_auth_keys_dir!,
-#    **sshd_auth_keys_mode!, **sshd_auth_keys_owner!
-# )
-#
-sshd_dofile_user_auth_keys() {
-    sshd_auth_keys_can_login=
-    sshd_auth_keys_mode=
-    sshd_auth_keys_owner=
-
-    sshd_get_user_auth_keys_path || return
-
-    sshd_auth_keys_mode='0600'
-    sshd_auth_keys_owner="${user_uid:-0}:${user_gid:-0}"
-
-    _sshd_lazy_dodir_auth_keys_dir 0700 "${sshd_auth_keys_owner}" || return
-    _sshd_dofile_auth_keys "${@}" || return
-}
-
-
 # sshd_dofile_system_auth_keys (
 #    [gen_auth_keys_func:=<default>], [*func_args],
-#    **user_name, **user_home, **user_uid, **user_gid,
+#    **user_name, **user_uid, **user_gid,
 #    **sshd_auth_keys_path!, **sshd_auth_keys_dir!,
 #    **sshd_auth_keys_mode!, **sshd_auth_keys_owner!
 # )
@@ -39,14 +17,13 @@ sshd_dofile_system_auth_keys() {
     sshd_auth_keys_mode='0640'
     sshd_auth_keys_owner="0:${user_gid:-0}"
 
-    _sshd_lazy_dodir_auth_keys_dir 0711 'root:wheel' || return
+    _sshd_lazy_dodir_auth_keys_dir 0710 "root:${OCONF_SSHD_GROUP_LOGIN:-wheel}" || return
     _sshd_dofile_auth_keys "${@}" || return
 }
 
 
 _sshd_get_auth_keys_path_prereq() {
     [ -n "${user_name-}" ] || return 1
-    [ -n "${user_home-}" ] || return 1
 }
 
 
@@ -69,26 +46,6 @@ _sshd_lazy_dodir_auth_keys_dir() {
 }
 
 
-sshd_get_user_auth_keys_path() {
-    _sshd_set_auth_keys_path
-
-    _sshd_get_auth_keys_path_prereq || return 1
-
-    fspath_check_safe_relpath "${SSHD_USER_AUTH_KEYS_FILE}" || return 3
-
-    # FIXME: check that somewhere else (and properly)
-    # For now, allow only paths in /home/ and /FACTORY/
-    # that do not include references to parent directories
-    ! fspath_check_parent_relpath "${user_home}" || return 3
-    case "${user_home}" in
-        '/home/'*|'/FACTORY/'*) : ;;
-        *) return 2 ;;
-    esac
-
-    _sshd_set_auth_keys_path "${user_home%/}/${SSHD_USER_AUTH_KEYS_FILE}"
-}
-
-
 sshd_get_system_auth_keys_path() {
     _sshd_set_auth_keys_path
 
@@ -99,7 +56,8 @@ sshd_get_system_auth_keys_path() {
 
 
 # @stdout sshd_default_gen_sshd_auth_keys (
-#    [*extra_keys], **user_name
+#    [*extra_keys], **user_name,
+#    **sshd_auth_keys_copy_keys_from_home:=0, **user_home=
 # )
 #   also reads factory file authorized_keys.<user_name>
 #
@@ -115,6 +73,16 @@ sshd_default_gen_sshd_auth_keys() {
 
         elif [ ${?} -ne 1 ]; then
             die "Failed to read ${v0}"
+        fi
+    fi
+
+    if \
+        [ "${sshd_auth_keys_copy_keys_from_home:-0}" -eq 1 ] && \
+        [ -n "${user_home-}" ]
+    then
+        v0="${user_home}/.ssh/authorized_keys"
+        if [ -f "${v0}" ] && grep -E -- '^[^#]' "${v0:?}"; then
+            sshd_auth_keys_can_login='home'
         fi
     fi
 

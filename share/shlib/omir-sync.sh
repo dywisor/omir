@@ -61,6 +61,7 @@ omir_fetch_openbsd_releases() {
 	local releases
 	local rel
 	local rel_filter_list
+	local v0
 
 	set -- ${*}
 	[ ${#} -gt 0 ] || set -- ${OMIR_REL:?}
@@ -86,7 +87,13 @@ omir_fetch_openbsd_releases() {
 	# collect filter lists
 	#   start with the 'base begin' list
 	set --
-	set -- "${@}" --filter ". ${OMIR_FILTER_LIST}.head"
+
+	if ! pick_config_file "${OMIR_FILTER_LIST}.head"; then
+		eerror "${OMIR_FILTER_LIST}.head not found"
+		return 5
+	elif [ -s "${v0}" ]; then
+		set -- "${@}" --filter ". ${v0}"
+	fi
 
 	# loop over releases and add individual filter lists
 	#   if there's no list for a release, create a new one from template
@@ -101,10 +108,12 @@ omir_fetch_openbsd_releases() {
 			# not a file
 			return 225
 
+		elif ! pick_config_file "${OMIR_FILTER_LIST}.skel"; then
+			eerror "Release filter list skel ${OMIR_FILTER_LIST}.skel missing"
+			return 5
+
 		elif ! {
-			sed -r -e "s=@@REL@@=${rel}=g" \
-				< "${OMIR_FILTER_LIST}.skel" \
-				> "${rel_filter_list}.new"
+			sed -r -e "s=@@REL@@=${rel}=g" < "${v0}" > "${rel_filter_list}.new"
 		}; then
 			# failed to render template
 			return 230
@@ -119,7 +128,12 @@ omir_fetch_openbsd_releases() {
 	done
 
 	# add 'base end' list
-	set -- "${@}" --filter ". ${OMIR_FILTER_LIST}.tail"
+	if ! pick_config_file "${OMIR_FILTER_LIST}.tail"; then
+		eerror "${OMIR_FILTER_LIST}.tail not found"
+		return 5
+	elif [ -s "${v0}" ]; then
+		set -- "${@}" --filter ". ${v0}"
+	fi
 
 	__omir_rsync "${@}" -- "${OMIR_UPSTREAM_MIRROR_URI%/}/" "${MIRROR_OPENBSD%/}/"
 }
