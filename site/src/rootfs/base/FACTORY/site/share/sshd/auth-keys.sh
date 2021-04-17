@@ -23,7 +23,7 @@ sshd_dofile_system_auth_keys() {
     # in upgrade mode, skip existing auth keys files for non-root users
     if \
         factory_site_mode_is_upgrade && \
-        check_fs_lexists "${sshd_auth_keys_path}" && \
+        check_fs_lexists "${sshd_auth_keys_path}"
     then
         if [ "${user_name}" = 'root' ]; then
             if feat_all "${OFEAT_SSHD_UPGRADE_KEEP_AUTH_KEYS_ROOT-}"; then
