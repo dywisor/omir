@@ -101,6 +101,20 @@ locate_factory_src() {
 }
 
 
+# factory_site_mode ( name )
+#
+#  Returns true if site script mode equals %name.
+#
+factory_site_mode() {
+    [ "${FACTORY_SITE_MODE:-_}" = "${1-}" ]
+}
+
+# macros for known factory site modes
+factory_site_mode_is_install()    { factory_site_mode 'install'; }
+factory_site_mode_is_upgrade()    { factory_site_mode 'upgrade'; }
+factory_site_mode_is_firsttime()  { factory_site_mode 'firsttime'; }
+
+
 # feat_all ( *args )
 #
 #  Returns true if all args are set to '1'
