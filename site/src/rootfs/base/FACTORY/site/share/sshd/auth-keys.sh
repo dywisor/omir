@@ -19,6 +19,26 @@ sshd_dofile_system_auth_keys() {
     sshd_auth_keys_owner="0:${user_gid:-0}"
 
     _sshd_lazy_dodir_auth_keys_dir 0710 "root:${OCONF_SSHD_GROUP_LOGIN:-wheel}" || return
+
+    # in upgrade mode, skip existing auth keys files for non-root users
+    if \
+        factory_site_mode_is_upgrade && \
+        check_fs_lexists "${sshd_auth_keys_path}" && \
+    then
+        if [ "${user_name}" = 'root' ]; then
+            if feat_all "${OFEAT_SSHD_UPGRADE_KEEP_AUTH_KEYS_ROOT-}"; then
+                print_info "Keeping authorized_keys file for root"
+                sshd_auth_keys_can_login='keep_old_file'
+                return 0
+            fi
+
+        elif feat_all "${OFEAT_SSHD_UPGRADE_KEEP_AUTH_KEYS_USER-}"; then
+            print_info "Keeping authorized_keys file for user ${user_name}"
+            sshd_auth_keys_can_login='keep_old_file'
+            return 0
+        fi
+    fi
+
     _sshd_dofile_auth_keys "${@}" || return
 }
 

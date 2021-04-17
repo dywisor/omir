@@ -323,6 +323,12 @@ OCONF_SSHD_GID_CHROOT_HOME="903"
 # Affects new installations only, feature is disabled for upgrade mode.
 OFEAT_SSHD_FORCE_REGEN_KEYS=0
 
+# Whether to keep existing SSH authorized_keys files in upgrade mode
+# - for the root user
+OFEAT_SSHD_UPGRADE_KEEP_AUTH_KEYS_ROOT=0
+# - for all other users
+OFEAT_SSHD_UPGRADE_KEEP_AUTH_KEYS_USER=1
+
 
 # Hardware Quirks
 # ---------------
