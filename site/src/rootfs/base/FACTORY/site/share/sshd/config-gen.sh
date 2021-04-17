@@ -93,6 +93,8 @@ TCPKeepAlive yes
 UseDNS no
 
 Subsystem sftp internal-sftp
+
+Include ${SSHD_INCLUDE_CONFDIR}/*.conf
 EOF
 
 if [ -n "${OCONF_SSHD_GROUP_SHELL-}" ]; then
