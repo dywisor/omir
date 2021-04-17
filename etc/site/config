@@ -320,6 +320,7 @@ OCONF_SSHD_GID_CHROOT_HOME="903"
 
 # Optionally force SSH host key regeneration by nuking existing keys
 # This will remove all existing host key files from /etc/ssh
+# Affects new installations only, feature is disabled for upgrade mode.
 OFEAT_SSHD_FORCE_REGEN_KEYS=0
 
 

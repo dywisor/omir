@@ -17,7 +17,10 @@ sshd_setup_create_host_keys() {
 
     print_action "Creating SSH host keys"
 
-    if [ "${OFEAT_SSHD_FORCE_REGEN_KEYS:-0}" -eq 1 ]; then
+    if \
+        [ "${OFEAT_SSHD_FORCE_REGEN_KEYS:-0}" -eq 1 ] && \
+        factory_site_mode_is_install
+    then
         (
             set +f
             set -- "${SSHD_CONFDIR}/"ssh_host_*_key*
