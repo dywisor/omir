@@ -1,0 +1,1 @@
+../install.site/01-purge-flag-files.sh

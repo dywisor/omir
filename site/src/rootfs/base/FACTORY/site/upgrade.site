@@ -1,0 +1,16 @@
+#!/bin/sh
+[ -r /etc/profile ] && . /etc/profile || :
+
+set -fu
+
+touch -- /upgrade.site.log
+chmod -- 0600 /upgrade.site.log
+
+{
+FACTORY_SITE_MODE=upgrade
+. /FACTORY/site/share/functions.sh || exit 8
+
+web_proxy_init_env
+
+run_hooks upgrade.site
+} </dev/null 2>&1 | tee -a /upgrade.site.log

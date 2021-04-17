@@ -26,7 +26,8 @@ add_cleanup_code() {
 
 run_cleanup_code=1
 cleanup_code="${cleanup_code}
-mv -- /install.site.log ${cleanup_log_dst}/install.site.log
+mv -- /install.site.log ${cleanup_log_dst}/install.site.log || :
+mv -- /upgrade.site.log ${cleanup_log_dst}/upgrade.site.log || :
 mv -- /rc.firsttime.log ${cleanup_log_dst}/rc.firsttime.log
 
 rm -rf -- \"${FACTORY_SITE}\"
@@ -35,6 +36,7 @@ rmdir -- \"${FACTORY_SITE%/*}\" 2>/dev/null || :
 rm -f -- /OMIR_VERSION
 
 rm -- /install.site
+rm -- /upgrade.site
 "
 }
 

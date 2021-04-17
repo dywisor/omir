@@ -131,6 +131,14 @@ ${MIRROR_PXE_OPENBSD}/${_rel}/${_arch}/${_variant}/install.conf: \
 	mv -f -- ./tmp/${_rel}/${_arch}/${_variant}/install.conf ${@}.make_tmp
 	mv -f -- ${@}.make_tmp ${@}
 
+# upgrade.conf
+ALL_INSTALL_CONF += ${MIRROR_PXE_OPENBSD}/${_rel}/${_arch}/${_variant}/upgrade.conf
+${MIRROR_PXE_OPENBSD}/${_rel}/${_arch}/${_variant}/upgrade.conf: \
+	${MIRROR_PXE_OPENBSD}/${_rel}/${_arch}/${_variant}/install.conf
+
+	rm -f -- ${@}
+	${PXE_DOLINK} ${.ALLSRC} ${@}
+
 
 .if ("${_arch}" == "amd64") || ("${_arch}" == "i386")
 # pxeboot
@@ -145,6 +153,14 @@ ${MIRROR_PXE_OPENBSD}/${_rel}/${_arch}/${_variant}/pxeboot: \
 # auto_install
 _SETUP_FILES += ${MIRROR_PXE_OPENBSD}/${_rel}/${_arch}/${_variant}/auto_install
 ${MIRROR_PXE_OPENBSD}/${_rel}/${_arch}/${_variant}/auto_install: \
+	${MIRROR_PXE_OPENBSD}/${_rel}/${_arch}/${_variant}/pxeboot
+
+	rm -f -- ${@}
+	ln -s -- pxeboot ${@}
+
+# auto_upgrade
+_SETUP_FILES += ${MIRROR_PXE_OPENBSD}/${_rel}/${_arch}/${_variant}/auto_upgrade
+${MIRROR_PXE_OPENBSD}/${_rel}/${_arch}/${_variant}/auto_upgrade: \
 	${MIRROR_PXE_OPENBSD}/${_rel}/${_arch}/${_variant}/pxeboot
 
 	rm -f -- ${@}
