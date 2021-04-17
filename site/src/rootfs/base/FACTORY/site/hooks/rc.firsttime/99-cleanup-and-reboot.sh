@@ -76,6 +76,34 @@ cleanup_code="${cleanup_code}
 "
 }
 
+add_report_http_installed_code() {
+    local report_script
+
+    report_script='/usr/local/bin/omir-report-http-installed'
+
+    if ! load_lib report/http; then
+        print_err "Failed to load code gen lib"
+
+    elif dofile_site "${report_script}" 0755 'root:wheel' \
+        report_http_installed_gen_script
+    then
+        run_report_code=1
+        if feat_all "${OFEAT_UNPRIV_USER-}" && [ -n "${OCONF_UNPRIV_USER-}" ]; then
+            report_code="${report_code}
+/usr/local/bin/waitfor_reorder_kernel_exec su -s /bin/sh ${OCONF_UNPRIV_USER} -c '/usr/local/bin/omir-report-installed'
+"
+        else
+
+            report_code="${report_code}
+/usr/local/bin/waitfor_reorder_kernel_exec /usr/local/bin/omir-report-installed
+"
+        fi
+
+    else
+        print_err "Failed to generate ${report_script}"
+    fi
+}
+
 
 if feat_all "${OFEAT_AUTO_CLEANUP_FILES-}"; then
     add_cleanup_code
@@ -99,6 +127,10 @@ fi
 if feat_all "${OFEAT_FLAG_FILE_INSTALLED-}"; then
     run_report_code=1
     report_code="${report_code}${NL}touch -- /OMIR_INSTALLED${NL}"
+fi
+
+if feat_all "${OFEAT_REPORT_HTTP_INSTALLED-}"; then
+    add_report_http_installed_code
 fi
 
 # attach or run report code
