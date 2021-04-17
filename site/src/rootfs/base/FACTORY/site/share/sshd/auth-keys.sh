@@ -4,7 +4,8 @@
 #    [gen_auth_keys_func:=<default>], [*func_args],
 #    **user_name, **user_uid, **user_gid,
 #    **sshd_auth_keys_path!, **sshd_auth_keys_dir!,
-#    **sshd_auth_keys_mode!, **sshd_auth_keys_owner!
+#    **sshd_auth_keys_mode!, **sshd_auth_keys_owner!,
+#    **sshd_auth_keys_can_login!
 # )
 #
 sshd_dofile_system_auth_keys() {
@@ -57,7 +58,8 @@ sshd_get_system_auth_keys_path() {
 
 # @stdout sshd_default_gen_sshd_auth_keys (
 #    [*extra_keys], **user_name,
-#    **sshd_auth_keys_copy_keys_from_home:=0, **user_home=
+#    **sshd_auth_keys_copy_keys_from_home:=0, **user_home=,
+#    **sshd_auth_keys_can_login!
 # )
 #   also reads factory file authorized_keys.<user_name>
 #
