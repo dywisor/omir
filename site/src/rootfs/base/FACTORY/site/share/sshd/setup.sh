@@ -65,6 +65,13 @@ _sshd_setup_gen_sshd_config() {
 }
 
 sshd_setup_create_sshd_config() {
+
+    if factory_site_mode_is_upgrade; then
+        if [ -f "${SSHD_CONF_FILE}" ]; then
+            autodie cp -f -Hpv -- "${SSHD_CONF_FILE}" "${SSHD_CONF_FILE}.old"
+        fi
+    fi
+
     dofile "${SSHD_CONF_FILE}" 0600 'root:wheel' _sshd_setup_gen_sshd_config "${@}"
 }
 
