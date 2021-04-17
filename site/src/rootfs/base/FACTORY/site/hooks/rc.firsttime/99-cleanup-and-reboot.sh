@@ -69,46 +69,7 @@ add_delayed_reboot_code() {
 run_cleanup_code=1
 will_reboot=1
 cleanup_code="${cleanup_code}
-perl -e '
-use strict;
-use warnings;
-use feature qw( say );
-
-use POSIX ();
-
-my \$pid = fork;
-if ( \$pid < 0 ) {
-    exit 1;
-} elsif ( \$pid > 0 ) {
-    exit 0;
-} else {
-    my \$waited = 0;
-    my \$delay = ${delay};
-    my \$tick = 2;
-    my \$devnull = \"/dev/null\";
-    my @reboot_cmdv = ( \"shutdown\", \"-r\", \"now\" );
-    my @check_kernel_relink_cmdv = ( \"pgrep\", \"-qxf\", \"/bin/ksh.*reorder_kernel\" );
-
-    POSIX::setsid or warn;
-
-    close STDIN;
-    open STDIN, \"<\", \$devnull;
-
-    close STDOUT;
-    open STDOUT, \">>\", \$devnull;
-
-    close STDERR;
-    open STDERR, \">&STDOUT\";
-
-    while ( ( \$waited < \$delay ) && ( system ( @check_kernel_relink_cmdv ) == 0 ) ) {
-        sleep \$tick;
-        \$waited += \$tick;
-    }
-
-    sleep 15;
-    exec @reboot_cmdv;
-}
-'
+/usr/local/bin/waitfor_reorder_kernel_exec -t \"${delay}\" -d reboot
 "
 }
 
