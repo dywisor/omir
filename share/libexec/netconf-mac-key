@@ -90,15 +90,17 @@ sub main {
 	if ( scalar @ARGV ) { die "Too many positional arguments.\n"; }
 
 	# obfuscate MAC address
-	$arg = $opts->{'method'};
-	$arg = DEFAULT_METHOD if ( (not defined $arg) || ($arg eq 'default') );
+	$arg = $opts->{'method'} // DEFAULT_METHOD;
 	$keyfunc = $METHOD_MAP->{$arg} or die "Unknown method ${arg}.\n";
 
 	$key = &$keyfunc ( $arg, $mac ) or die "Failed to convert MAC to key.\n";
 
 	# truncate result
 	$arg = $opts->{'truncate'} // MAX_LABEL_LENGTH;
-	if ( ($arg < 0) || ($arg > MAX_LABEL_LENGTH) ) {
+    if ( ! $arg ) {
+        # zero-ish, no truncate
+        ;
+    } elsif ( ($arg < 0) || ($arg > MAX_LABEL_LENGTH) ) {
 		die "Invalid truncation length: ${arg}.\n";
 	} elsif ( length $key > $arg ) {
 		$key = substr $key, 0, $arg or die "Failed to truncate key.\n";
