@@ -16,6 +16,8 @@ PXE_DOLINK = ${OMIR_LIBEXEC}/ln-file-sym-rel
 PXE_DOLINK = cp -pP --
 .endif
 
+OMIR_GREP_OFEAT = ${OMIR_LIBEXEC}/omir-grep-ofeat
+
 CONFIGV =
 CONFIGV += ${OMIR_SITE_CONF_DIR}/config
 CONFIGV += ${OMIR_SITE_CONF_DIR}/config.autoinstall
@@ -138,6 +140,31 @@ ${MIRROR_PXE_OPENBSD}/${_rel}/${_arch}/${_variant}/upgrade.conf: \
 
 	rm -f -- ${@}
 	${PXE_DOLINK} ${.ALLSRC} ${@}
+
+
+# boot.conf (for this variant)
+ALL_INSTALL_CONF += ${MIRROR_PXE_OPENBSD}/${_rel}/${_arch}/${_variant}/boot.conf
+${MIRROR_PXE_OPENBSD}/${_rel}/${_arch}/${_variant}/boot.conf: \
+	${CONFIGV} ${PROFILES_DIR}/${_variant} ${LOCALCONFIGV} \
+	${MIRROR_PXE_OPENBSD}/${_rel}/${_arch}/etc/boot.conf.com0 \
+	${MIRROR_PXE_OPENBSD}/${_rel}/${_arch}/etc/boot.conf.default
+
+	mkdir -p -- ./tmp/${_rel}/${_arch}/${_variant}
+
+	{ set -e; \
+		\
+		if \
+			cat -- ${CONFIGV} ${PROFILES_DIR}/${_variant} ${LOCALCONFIGV} | \
+				${OMIR_GREP_OFEAT} OFEAT_CONSOLE_COM 0; \
+		then \
+			link_target='${MIRROR_PXE_OPENBSD}/${_rel}/${_arch}/etc/boot.conf.com0'; \
+		else \
+			link_target='${MIRROR_PXE_OPENBSD}/${_rel}/${_arch}/etc/boot.conf.default'; \
+		fi; \
+		\
+		rm -f -- ${@}; \
+		${PXE_DOLINK} "$${link_target}" ${@}; \
+	}
 
 
 .if ("${_arch}" == "amd64") || ("${_arch}" == "i386")

@@ -1,0 +1,40 @@
+#!/bin/sh
+# Usage: omir-grep-ofeat NAME [DEFAULT:=0]
+#
+#  Reads a stream of configuration text "NAME=VALUE" 
+#  from stdin and checks the effective value
+#  of the requested variable %NAME (last assignment wins).
+#
+#  Exit codes:
+#    * 0 - success, %NAME is set to true
+#    * 1 - success, %NAME is set to false
+#    * 2 - failure, %NAME is invalid
+#
+set -fu
+
+feat_name="${1:?}"
+feat_default="${2-}"
+
+awk -F '=' \
+    -v feat_name="${1:?}" \
+    -v feat_default="${2:-0}" \
+    -v feat_invalid='INVALID' \
+'
+BEGIN { feat_value = feat_default; }
+
+{ hot = 0; }
+($1 == ("" feat_name)) { hot = 1; }
+
+(hot && (NF == 2)) { feat_value = $2; }
+(hot && (NF != 2)) { feat_value = feat_invalid; }
+
+END {
+    if ( (feat_value == "1") || (feat_value == "y") ) {
+        exit 0;
+    } else if ( (feat_value == "0") || (feat_value == "n") ) {
+        exit 1;
+    } else {
+        exit 2;
+    }
+}
+'
