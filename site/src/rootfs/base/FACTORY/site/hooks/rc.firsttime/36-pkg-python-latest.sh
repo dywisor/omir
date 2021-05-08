@@ -3,7 +3,7 @@
 
 find_python3_pkg() {
     pkg_info -Q 'python--' \
-        | awk '( $1 ~ /^python-3[.][0-9]+[.][0-9]+$/ ) { print $1; }' \
+        | awk '( $1 ~ /^python-3[.][0-9]+[.][0-9]+(p[0-9]+)?$/ ) { print $1; }' \
         | sort -Vr
 }
 
