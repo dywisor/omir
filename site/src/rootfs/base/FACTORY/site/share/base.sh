@@ -22,6 +22,12 @@ __quietly__()  { "${@}" 1>/dev/null 2>&1; }
 __have_cmd__() { __quietly__ command -V "${1}"; }
 
 
+__retlatch__() {
+    "${@}" && rc=0 || rc=${?}
+    return ${rc}
+}
+
+
 main_die() {
 	local die_msg
 
