@@ -1,18 +1,13 @@
 #!/usr/bin/env perl
 #
-# Constructs a netconfig-by-mac DNS lookup key.
+# Waits for OpenBSD reorder_kernel to complete
+# and executes the given command afterwards.
+#
+# Typically, this is used to reboot the system cleanly
+# without risking a kernel panic to due reorder_kernel still running.
 #
 # Usage:
-#   netconf-mac-key [-m <method>] [-t <truncate>] [-d <domain>] <mac>
-#
-# With the --domain, -d option, create a fqdn lookup key.
-# The domain will not be validated, except for the length of the key.
-# Without it, create a lookup key label for DNS zone files.
-#
-# Use case:           bootstrap network configuration
-#                     using own MAC address + DNS lookups
-#
-# Target platform:    OpenBSD 6.x, fresh install - perl with core libs
+#   waitfor_reorder_kernel_exec [-C <dir>] [-d] [-s <seconds>] [-t <seconds>] cmd [arg...]
 #
 package WaitforReorderKernel::Main;
 
@@ -28,7 +23,7 @@ our $VERSION = '0.1';
 our $NAME    = 'waitfor_reorder_kernel';
 
 my $prog_name   = basename($0);
-my $short_usage = "${prog_name} [-C <dir>] [-d] [-t <seconds>] [-s <seconds>] cmd [arg...]";
+my $short_usage = "${prog_name} [-C <dir>] [-d] [-s <seconds>] [-t <seconds>] cmd [arg...]";
 
 
 sub main_get_opts {
