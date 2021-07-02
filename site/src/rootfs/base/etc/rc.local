@@ -17,3 +17,17 @@ if rm -- '/etc/rc.local.forcereboot' 2>/dev/null; then
 
     return 0 2>/dev/null || exit 0
 fi
+
+
+# Report installed
+if mv -f -- \
+    '/etc/rc.local.report-installed' \
+    '/etc/rc.local.report-installed.run' 2>/dev/null
+then
+    #if su -s /bin/sh nobody -c '/etc/rc.local.report-installed.run'; then
+    if '/etc/rc.local.report-installed.run'; then
+        rm -f -- '/etc/rc.local.report-installed.run' || :
+        rmdir -- '/FACTORY' 2>/dev/null || :
+    fi
+    # else keep script file for reference
+fi
