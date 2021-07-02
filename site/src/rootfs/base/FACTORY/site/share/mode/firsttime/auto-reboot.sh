@@ -21,3 +21,9 @@ want_auto_reboot() {
 	[ "${OFEAT_AUTO_REBOOT:-0}" -eq 1 ] || return 0
 	autodie touch "${AUTO_REBOOT_FLAG_FILE}"
 }
+
+
+check_auto_reboot_active() {
+    # regardless of OFEAT_AUTO_REBOOT
+    check_fs_lexists "${AUTO_REBOOT_FLAG_FILE}"
+}
