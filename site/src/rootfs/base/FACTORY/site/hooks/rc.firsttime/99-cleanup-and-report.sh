@@ -56,7 +56,7 @@ EOF
 add_report_http_installed_code() {
     local report_script
 
-    report_script='/usr/local/bin/omir-report-http-installed'
+    report_script='/etc/rc.local.report-installed'
 
     if ! load_lib report/http; then
         print_err "Failed to load code gen lib"
@@ -64,7 +64,6 @@ add_report_http_installed_code() {
     elif dofile_site "${report_script}" 0755 'root:wheel' \
         report_http_installed_gen_script
     then
-        # NOTE: will not exec - TODO
         true
 
     else
