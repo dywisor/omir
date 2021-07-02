@@ -386,17 +386,17 @@ OFEAT_FLAG_FILE_INSTALLED=1
 #
 #   NOTES:
 #     - Chances are that you end up polling again - this time, a local file instead of SSH
-#     - No guarantees are made whether OCONF_WEB_PROXY is used for these requests
+#     - Requests are made using ftp(1) as user root
+#         ftp [-4|-6] -w <timeout> [-S dont] -MnVi -o /dev/null <url>
 #     - OCONF_WEB_PROXY is not used by default for these requests
 #       (OFEAT_REPORT_HTTP_USE_PROXY)
 #     - You should specify whether to use IPv4 or IPv6 (empty = use any)
-#     - SSL verification is disabled by default,
-#       OCONF_REPORT_HTTP_INSTALLED_SSL_OPTIONS can be used
-#       to pass arbitrary SSL options to ftp(1)
-#     - Requests are made using ftp(1) as user OCONF_UNPRIV_USER or nobody
-#         su -s /bin/sh <user> -c 'ftp [-4|-6] -w <timeout> [-S dont] -MnVi -o /dev/null <url>'
+#     - SSL verification is disabled by default.
+#       This can be controlled via OCONF_REPORT_HTTP_INSTALLED_SSL_OPTIONS,
+#       which allows to pass arbitrary SSL options to ftp(1)
 #     - The signal is successfully delivered as soon as ftp(1) returns success,
 #       usually caused by a status code in the 2xx range
+#
 #
 OFEAT_REPORT_HTTP_INSTALLED=0
 OCONF_REPORT_HTTP_INSTALLED='http://omir/installed'
