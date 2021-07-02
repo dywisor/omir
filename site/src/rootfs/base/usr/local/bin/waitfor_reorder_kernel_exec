@@ -86,6 +86,7 @@ sub main_wait {
         my $sleep_time  = 0 + ($opts->{'sleep'} // 15);
         my $waited      = 0;
         my $devnull     = '/dev/null';
+        # relink check from https://github.com/openbsd/src/blob/master/usr.sbin/syspatch/syspatch.sh
         my @check_kernel_relink_cmdv = ( 'pgrep', '-qxf', '/bin/ksh.*reorder_kernel' );
 
         POSIX::setsid or warn;
