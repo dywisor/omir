@@ -38,12 +38,12 @@ EOF
 
 add_cleanup_code() {
 rc_firsttime_cat << EOF
-mv -- /install.site.log \"${cleanup_log_dst}/install.site.log\" || :
-mv -- /upgrade.site.log \"${cleanup_log_dst}/upgrade.site.log\" || :
-mv -- /rc.firsttime.log \"${cleanup_log_dst}/rc.firsttime.log\" || :
+mv -- /install.site.log "${cleanup_log_dst}/install.site.log" || :
+mv -- /upgrade.site.log "${cleanup_log_dst}/upgrade.site.log" || :
+mv -- /rc.firsttime.log "${cleanup_log_dst}/rc.firsttime.log" || :
 
-rm -rf -- \"${FACTORY_SITE}\"
-rmdir -- \"${FACTORY_SITE%/*}\" 2>/dev/null || :
+rm -rf -- "${FACTORY_SITE}"
+rmdir -- "${FACTORY_SITE%/*}" 2>/dev/null || :
 
 rm -f -- /OMIR_VERSION
 
