@@ -1,0 +1,33 @@
+#!/bin/sh
+
+# Reboot when flag file is present
+#
+#   Make sure to remove it first to avoid reboot loops caused by readonly /etc.
+#
+#   Additionally, wait until kernel relinking is completed.
+#   On rare occasions, rebooting while relinking is still
+#   running might trigger a kernel panic.
+#   (This used to happen quite frequently on 6.8 VMs, not sure nowadays.)
+#
+#   Reboot skips any further actions in this file.
+#
+if rm -- '/etc/rc.local.forcereboot' 2>/dev/null; then
+    printf '*** Reboot requested, system will restart soon\n'
+    /usr/local/bin/waitfor_reorder_kernel_exec -t 600 -d /sbin/reboot
+
+    return 0 2>/dev/null || exit 0
+fi
+
+
+# Report installed
+if mv -f -- \
+    '/etc/rc.local.report-installed' \
+    '/etc/rc.local.report-installed.run' 2>/dev/null
+then
+    #if su -s /bin/sh nobody -c '/etc/rc.local.report-installed.run'; then
+    if '/etc/rc.local.report-installed.run'; then
+        rm -f -- '/etc/rc.local.report-installed.run' || :
+        rmdir -- '/FACTORY' 2>/dev/null || :
+    fi
+    # else keep script file for reference
+fi

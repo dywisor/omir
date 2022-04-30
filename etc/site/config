@@ -352,6 +352,64 @@ OFEAT_SYNC_HWCLOCK=0
 #
 OFEAT_FLAG_FILE_INSTALLED=1
 
+# Whether to report the installation status to a remote server
+#
+#   If enabled, a HTTP(S) GET request is issued
+#   to signalize that the installation has finished
+#   and the system is ready for further configuration.
+#
+#   The sole purpose of this feature is to get rid
+#   of polling via SSH in auto-deployment scenarios.
+#   Polling is rather tricky since "SSH reachable" may mean either "ready"
+#   or "hold on, not ready yet, about to reboot after rc.firsttime".
+#   It usually bombards the target system with connection attempts during
+#   installation and heavily relies on well-guessed wait/delay times.
+#
+#   With OCONF_REPORT_HTTP_INSTALLED=1,
+#   an event-driven approach can be implemented.
+#
+#   The remote end could be a CGI script inspecting the source address
+#   of the request. The HTTP(S) request itself is INSECURE by design.
+#   Think of it, if someone tells you that xyz is ready,
+#   does that necessarily mean they're telling you the truth?
+#   You need to either trust the sender/message or double-check it.
+#   HTTP(S) requests do not identify the sender as trusted.
+#   Anybody could send the 'system ready' message,
+#   so that should be verified via a second communication channel.
+#   Together with OFEAT_FLAG_FILE_INSTALLED=1, this can be achieved via SSH.
+#   Ideally, separate user accounts are used for incoming HTTP/CGI
+#   and outgoing SSH (from the remote server's perspective).
+#
+#   By default, the request times out after 15 seconds
+#   and fails after a total of 2 attempts (retry count of 1).
+#   A small delay is added before retrying to connect.
+#
+#   NOTES:
+#     - Chances are that you end up polling again - this time, a local file instead of SSH
+#     - Requests are made using ftp(1) as user root
+#         ftp [-4|-6] -w <timeout> [-S dont] -MnVi -o /dev/null <url>
+#     - OCONF_WEB_PROXY is not used by default for these requests
+#       (OFEAT_REPORT_HTTP_USE_PROXY)
+#     - You should specify whether to use IPv4 or IPv6 (empty = use any)
+#     - SSL verification is disabled by default.
+#       This can be controlled via OCONF_REPORT_HTTP_INSTALLED_SSL_OPTIONS,
+#       which allows to pass arbitrary SSL options to ftp(1)
+#     - The signal is successfully delivered as soon as ftp(1) returns success,
+#       usually caused by a status code in the 2xx range
+#
+#
+OFEAT_REPORT_HTTP_INSTALLED=0
+OCONF_REPORT_HTTP_INSTALLED='http://omir/installed'
+
+OCONF_REPORT_HTTP_IP_PROTO='4'
+OCONF_REPORT_HTTP_SSL_OPTIONS='dont'
+
+OFEAT_REPORT_HTTP_USE_PROXY=0
+
+OCONF_REPORT_HTTP_TIMEOUT='15'
+OCONF_REPORT_HTTP_RETRY_DELAY='5'
+OCONF_REPORT_HTTP_RETRY_COUNT='1'
+
 # Whether to remove setup files (/FACTORY/site) when done
 OFEAT_AUTO_CLEANUP_FILES=1
 
