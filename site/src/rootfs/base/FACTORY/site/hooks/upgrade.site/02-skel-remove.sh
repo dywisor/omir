@@ -1,1 +1,0 @@
-../install.site/02-skel-remove.sh
