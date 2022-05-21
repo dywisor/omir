@@ -291,8 +291,8 @@ sub read_fh {
 
 	my $re_varname = qr/(?<name>[A-Z_]+[0-9]*)/sx;
 	my $re_val_bare = qr/(?<val_bare>[0-9a-zA-Z_\-\/]*)/sx;
-	my $re_val_dquoted = qr/"(?<val_dquoted>[^"]+)"/sx;
-	my $re_val_squoted = qr/'(?<val_squoted>[^']+)'/sx;
+	my $re_val_dquoted = qr/"(?<val_dquoted>[^"]*)"/sx;
+	my $re_val_squoted = qr/'(?<val_squoted>[^']*)'/sx;
 
 	my $re_vardef = qr/^${re_varname}\s*=\s*(?:${re_val_squoted}|${re_val_dquoted}|${re_val_bare})\s*$/sx;
 
