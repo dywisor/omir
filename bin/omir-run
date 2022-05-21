@@ -14,160 +14,160 @@ our $cfg;
 
 
 sub main {
-	my $script_arg;
-	my $strict_script_lookup;
+    my $script_arg;
+    my $strict_script_lookup;
 
-	$cfg = OmirConfig->new();
+    $cfg = OmirConfig->new();
 
-	cfg_init_fs ( dirname ( $RealBin ) );
-	cfg_read_config();
-	cfg_fillup();
+    cfg_init_fs ( dirname ( $RealBin ) );
+    cfg_read_config();
+    cfg_fillup();
 
-	export_cfg();
+    export_cfg();
 
-	if ( $Script eq 'omir-run' ) {
-		die "missing argument" unless (scalar @ARGV);
-		$script_arg = shift @ARGV;
-		$strict_script_lookup = 0;
+    if ( $Script eq 'omir-run' ) {
+        die "missing argument" unless (scalar @ARGV);
+        $script_arg = shift @ARGV;
+        $strict_script_lookup = 0;
 
-	} else {
-		$script_arg = $Script;
-		$strict_script_lookup = 1;
-	}
+    } else {
+        $script_arg = $Script;
+        $strict_script_lookup = 1;
+    }
 
-	if ( $script_arg eq 'omir-mkenv' ) {
-		print_cfg ( "%s := %s\n" );
+    if ( $script_arg eq 'omir-mkenv' ) {
+        print_cfg ( "%s := %s\n" );
 
-	} elsif ( $script_arg eq 'omir-env' ) {
-		print_cfg ( "%s='%s'\n" );
+    } elsif ( $script_arg eq 'omir-env' ) {
+        print_cfg ( "%s='%s'\n" );
 
-	} else {
-		my $exec_script = $cfg->relpath ( 'OMIR_SCRIPTS', $script_arg );
-		if ( ( -l $exec_script ) || ( -e $exec_script ) ) {
-			if ( -x $exec_script ) {
-				exec $exec_script, @ARGV or die;
-			} else {
-				die "script is not executable: ${exec_script}\n";
-			}
+    } else {
+        my $exec_script = $cfg->relpath ( 'OMIR_SCRIPTS', $script_arg );
+        if ( ( -l $exec_script ) || ( -e $exec_script ) ) {
+            if ( -x $exec_script ) {
+                exec $exec_script, @ARGV or die;
+            } else {
+                die "script is not executable: ${exec_script}\n";
+            }
 
-		} elsif ( $strict_script_lookup ) {
-			die "script missing: ${exec_script}\n";
+        } elsif ( $strict_script_lookup ) {
+            die "script missing: ${exec_script}\n";
 
-		} else {
-			exec $script_arg, @ARGV or die;
-		}
-	}
+        } else {
+            exec $script_arg, @ARGV or die;
+        }
+    }
 }
 
 
 sub cfg_init_fs {
-	my $prj_root = shift or die;
+    my $prj_root = shift or die;
 
-	$cfg->set ( 'OMIR_PRJ_ROOT', $prj_root );
+    $cfg->set ( 'OMIR_PRJ_ROOT', $prj_root );
 
-	$cfg->set_relpath ( 'OMIR_BIN_DIR', 'OMIR_PRJ_ROOT', 'bin' );
+    $cfg->set_relpath ( 'OMIR_BIN_DIR', 'OMIR_PRJ_ROOT', 'bin' );
 
-	$cfg->set_relpath ( 'OMIR_CONF_DIR', 'OMIR_PRJ_ROOT', 'etc' );
+    $cfg->set_relpath ( 'OMIR_CONF_DIR', 'OMIR_PRJ_ROOT', 'etc' );
 
-	$cfg->set_relpath ( 'OMIR_SHARE_DIR', 'OMIR_PRJ_ROOT', 'share' );
-	$cfg->set_relpath ( 'OMIR_LIBEXEC', 'OMIR_SHARE_DIR', 'libexec' );
-	$cfg->set_relpath ( 'OMIR_SCRIPTS', 'OMIR_SHARE_DIR', 'scripts' );
-	$cfg->set_relpath ( 'OMIR_SHLIB', 'OMIR_SHARE_DIR', 'shlib' );
+    $cfg->set_relpath ( 'OMIR_SHARE_DIR', 'OMIR_PRJ_ROOT', 'share' );
+    $cfg->set_relpath ( 'OMIR_LIBEXEC', 'OMIR_SHARE_DIR', 'libexec' );
+    $cfg->set_relpath ( 'OMIR_SCRIPTS', 'OMIR_SHARE_DIR', 'scripts' );
+    $cfg->set_relpath ( 'OMIR_SHLIB', 'OMIR_SHARE_DIR', 'shlib' );
 
-	$cfg->set_relpath ( 'OMIR_SITE_DIR', 'OMIR_PRJ_ROOT', 'site' );
-	$cfg->set_relpath ( 'OMIR_SITE_CONF_DIR', 'OMIR_CONF_DIR', 'site' );
+    $cfg->set_relpath ( 'OMIR_SITE_DIR', 'OMIR_PRJ_ROOT', 'site' );
+    $cfg->set_relpath ( 'OMIR_SITE_CONF_DIR', 'OMIR_CONF_DIR', 'site' );
 
-	$cfg->set_relpath ( 'OMIR_OINK_SHARE_DIR', 'OMIR_SHARE_DIR', 'oink' );
-	$cfg->set_relpath ( 'OMIR_OINK_HOOK_DIR', 'OMIR_OINK_SHARE_DIR', 'hooks' );
-	$cfg->set_relpath ( 'OMIR_OINK_FILES_DIR', 'OMIR_OINK_SHARE_DIR', 'files' );
+    $cfg->set_relpath ( 'OMIR_OINK_SHARE_DIR', 'OMIR_SHARE_DIR', 'oink' );
+    $cfg->set_relpath ( 'OMIR_OINK_HOOK_DIR', 'OMIR_OINK_SHARE_DIR', 'hooks' );
+    $cfg->set_relpath ( 'OMIR_OINK_FILES_DIR', 'OMIR_OINK_SHARE_DIR', 'files' );
 }
 
 
 sub cfg_read_config {
-	my $dist_config = $cfg->relpath ( 'OMIR_CONF_DIR', 'omir.env' );
-	my $local_config = ($dist_config . '.local');
+    my $dist_config = $cfg->relpath ( 'OMIR_CONF_DIR', 'omir.env' );
+    my $local_config = ($dist_config . '.local');
 
-	$cfg->read_file ( $dist_config ) or die "Failed to read config\n";
-	if ( -f $local_config ) {
-		$cfg->read_file ( $local_config ) or die "Failed to read local config\n";
-	}
+    $cfg->read_file ( $dist_config ) or die "Failed to read config\n";
+    if ( -f $local_config ) {
+        $cfg->read_file ( $local_config ) or die "Failed to read local config\n";
+    }
 }
 
 
 sub cfg_fillup {
-	$cfg->set_default_relpath ( 'MIRROR_OPENBSD', 'MIRROR_ROOT', 'OpenBSD' );
-	$cfg->set_default_relpath ( 'MIRROR_OPENBSD_FW', 'MIRROR_OPENBSD', 'firmware' );
+    $cfg->set_default_relpath ( 'MIRROR_OPENBSD', 'MIRROR_ROOT', 'OpenBSD' );
+    $cfg->set_default_relpath ( 'MIRROR_OPENBSD_FW', 'MIRROR_OPENBSD', 'firmware' );
 
-	$cfg->set_default_relpath ( 'MIRROR_PXE', 'MIRROR_ROOT', 'pxe' );
-	$cfg->set_default_relpath ( 'MIRROR_PXE_OPENBSD', 'MIRROR_PXE', 'openbsd' );
+    $cfg->set_default_relpath ( 'MIRROR_PXE', 'MIRROR_ROOT', 'pxe' );
+    $cfg->set_default_relpath ( 'MIRROR_PXE_OPENBSD', 'MIRROR_PXE', 'openbsd' );
 
-	$cfg->set_default_relpath ( 'OMIR_FILTER_LIST', 'OMIR_CONF_DIR', 'omir.list' );
+    $cfg->set_default_relpath ( 'OMIR_FILTER_LIST', 'OMIR_CONF_DIR', 'omir.list' );
 
-	if ( not $cfg->has ( 'OMIR_CUR_REL' ) ) {
-		my @relv = split ' ', ($cfg->get('OMIR_REL') );
-		$cfg->set ( 'OMIR_CUR_REL', $relv[0] );
-	}
+    if ( not $cfg->has ( 'OMIR_CUR_REL' ) ) {
+        my @relv = split ' ', ($cfg->get('OMIR_REL') );
+        $cfg->set ( 'OMIR_CUR_REL', $relv[0] );
+    }
 
-	$cfg->set_default( 'OMIR_OINK_BUILD_ROOT', '/usr/src' );
-	$cfg->set_default_relpath ( 'OMIR_OINK_STATE_DIR', 'OMIR_OINK_BUILD_ROOT', '.oink' );
-	$cfg->set_default_relpath ( 'OMIR_OINK_TMPDIR', 'OMIR_OINK_BUILD_ROOT', 'tmp' );
+    $cfg->set_default( 'OMIR_OINK_BUILD_ROOT', '/usr/src' );
+    $cfg->set_default_relpath ( 'OMIR_OINK_STATE_DIR', 'OMIR_OINK_BUILD_ROOT', '.oink' );
+    $cfg->set_default_relpath ( 'OMIR_OINK_TMPDIR', 'OMIR_OINK_BUILD_ROOT', 'tmp' );
 
-	$cfg->set_default_relpath ( 'OMIR_OINK_LOCAL_PUBLISH_DIR', 'MIRROR_ROOT', 'oink' );
+    $cfg->set_default_relpath ( 'OMIR_OINK_LOCAL_PUBLISH_DIR', 'MIRROR_ROOT', 'oink' );
 }
 
 
 sub export_cfg {
-	my @ckeys = $cfg->keys();
+    my @ckeys = $cfg->keys();
 
-	foreach my $k ( @ckeys ) {
-		my $val = $cfg->get($k);
+    foreach my $k ( @ckeys ) {
+        my $val = $cfg->get($k);
 
-		die "malformed var ${k}" if ($val =~ m/["']/mx);
-		$ENV{$k} = $val;
-	}
+        die "malformed var ${k}" if ($val =~ m/["']/mx);
+        $ENV{$k} = $val;
+    }
 
-	env_path_insert ( $cfg->get('OMIR_LIBEXEC'), $cfg->get('OMIR_SCRIPTS') );
+    env_path_insert ( $cfg->get('OMIR_LIBEXEC'), $cfg->get('OMIR_SCRIPTS') );
 }
 
 
 sub print_cfg {
-	my @ckeys = sort $cfg->keys();
-	my $fmt = shift;
+    my @ckeys = sort $cfg->keys();
+    my $fmt = shift;
 
-	foreach my $k ( @ckeys ) {
-		printf {*STDOUT} $fmt, $k, $cfg->get($k);
-	}
+    foreach my $k ( @ckeys ) {
+        printf {*STDOUT} $fmt, $k, $cfg->get($k);
+    }
 }
 
 
 sub dirname {
-	my ( $vol, $dirs, $file ) = File::Spec->splitpath ( (shift) );
-	File::Spec->catdir ( File::Spec->catpath ( $vol, $dirs, "" ) );
+    my ( $vol, $dirs, $file ) = File::Spec->splitpath ( (shift) );
+    File::Spec->catdir ( File::Spec->catpath ( $vol, $dirs, "" ) );
 }
 
 
 # COULDFIX: platform-specific
 sub env_path_insert {
-	my $path_new;
-	my $path_bak;
-	my @path_elems;
-	my $path_lut = {};
+    my $path_new;
+    my $path_bak;
+    my @path_elems;
+    my $path_lut = {};
 
-	$path_bak = ($ENV{'PATH'} || '');
+    $path_bak = ($ENV{'PATH'} || '');
 
-	@path_elems = grep { m/./mx } split /:/, $path_bak;
+    @path_elems = grep { m/./mx } split /:/, $path_bak;
 
-	foreach my $k ( @path_elems ) { $path_lut->{$k} = 1; }
+    foreach my $k ( @path_elems ) { $path_lut->{$k} = 1; }
 
-	foreach my $k ( @_ ) {
-		if ( not exists $path_lut->{$k} ) {
-			$path_lut->{$k} = 1;
-			unshift @path_elems, $k;
-		}
-	}
+    foreach my $k ( @_ ) {
+        if ( not exists $path_lut->{$k} ) {
+            $path_lut->{$k} = 1;
+            unshift @path_elems, $k;
+        }
+    }
 
-	$path_new = join ':', @path_elems;
-	$ENV{'PATH'} = $path_new;
+    $path_new = join ':', @path_elems;
+    $ENV{'PATH'} = $path_new;
 }
 
 
@@ -185,136 +185,136 @@ use File::Spec;
 
 
 sub new {
-	my $caller = shift;
-	my $class = (ref $caller) || $caller;
+    my $caller = shift;
+    my $class = (ref $caller) || $caller;
 
-	my $self_data = {
-		_vars => {},
-	};
+    my $self_data = {
+        _vars => {},
+    };
 
-	my $self = bless $self_data, $class;
+    my $self = bless $self_data, $class;
 
-	return $self;
+    return $self;
 }
 
 
 sub keys {
-	my $self = shift;
+    my $self = shift;
 
-	return keys %{ $self->{_vars} };
+    return keys %{ $self->{_vars} };
 }
 
 
 sub has {
-	my $self = shift;
-	my $key = shift;
+    my $self = shift;
+    my $key = shift;
 
-	return ( $self->{_vars}->{$key} ) ? 1 : 0;
+    return ( $self->{_vars}->{$key} ) ? 1 : 0;
 }
 
 
 sub get {
-	my $self = shift;
-	my $key = shift;
+    my $self = shift;
+    my $key = shift;
 
-	my $val = $self->{_vars}->{$key};
+    my $val = $self->{_vars}->{$key};
 
-	die "missing config var: ${key}\n" unless defined $val;
-	return $val;
+    die "missing config var: ${key}\n" unless defined $val;
+    return $val;
 }
 
 
 sub set {
-	my $self = shift;
-	my $key = shift;
-	my $val = shift;
+    my $self = shift;
+    my $key = shift;
+    my $val = shift;
 
-	$self->{_vars}->{$key} = $val;
+    $self->{_vars}->{$key} = $val;
 }
 
 
 sub set_default {
-	my $self = shift;
-	my $key = shift;
+    my $self = shift;
+    my $key = shift;
 
-	if ( not $self->has ( $key ) ) {
-		$self->set ( $key, @_ );
-	}
+    if ( not $self->has ( $key ) ) {
+        $self->set ( $key, @_ );
+    }
 }
 
 
 sub relpath {
-	my $self = shift;
-	my $key = shift;
+    my $self = shift;
+    my $key = shift;
 
-	File::Spec->catdir ( $self->get ( $key ), @_ );
+    File::Spec->catdir ( $self->get ( $key ), @_ );
 }
 
 
 sub set_relpath {
-	my $self = shift;
-	my $name = shift;
+    my $self = shift;
+    my $name = shift;
 
-	my $val = $self->relpath ( @_ );
-	$self->set ( $name, $val );
+    my $val = $self->relpath ( @_ );
+    $self->set ( $name, $val );
 }
 
 
 sub set_default_relpath {
-	my $self = shift;
-	my $name = shift;
+    my $self = shift;
+    my $name = shift;
 
-	if ( not $self->has ( $name ) ) {
-		my $val = $self->relpath ( @_ );
-		$self->set ( $name, $val );
-	}
+    if ( not $self->has ( $name ) ) {
+        my $val = $self->relpath ( @_ );
+        $self->set ( $name, $val );
+    }
 }
 
 
 sub read_file {
-	my $self = shift;
-	my $filepath = shift;
-	my $fh;
+    my $self = shift;
+    my $filepath = shift;
+    my $fh;
 
-	open $fh, '<', $filepath or return;
-	$self->read_fh ( $fh, $filepath );
-	close $fh or warn;
+    open $fh, '<', $filepath or return;
+    $self->read_fh ( $fh, $filepath );
+    close $fh or warn;
 
-	return 1;
+    return 1;
 }
 
 
 sub read_fh {
-	my $self = shift;
-	my $fh = shift;
-	my $source = shift || '???';
+    my $self = shift;
+    my $fh = shift;
+    my $source = shift || '???';
 
-	my $re_varname = qr/(?<name>[A-Z_]+[0-9]*)/sx;
-	my $re_val_bare = qr/(?<val_bare>[0-9a-zA-Z_\-\/]*)/sx;
-	my $re_val_dquoted = qr/"(?<val_dquoted>[^"]*)"/sx;
-	my $re_val_squoted = qr/'(?<val_squoted>[^']*)'/sx;
+    my $re_varname = qr/(?<name>[A-Z_]+[0-9]*)/sx;
+    my $re_val_bare = qr/(?<val_bare>[0-9a-zA-Z_\-\/]*)/sx;
+    my $re_val_dquoted = qr/"(?<val_dquoted>[^"]*)"/sx;
+    my $re_val_squoted = qr/'(?<val_squoted>[^']*)'/sx;
 
-	my $re_vardef = qr/^${re_varname}\s*=\s*(?:${re_val_squoted}|${re_val_dquoted}|${re_val_bare})\s*$/sx;
+    my $re_vardef = qr/^${re_varname}\s*=\s*(?:${re_val_squoted}|${re_val_dquoted}|${re_val_bare})\s*$/sx;
 
-	while ( <$fh> ) {
-		# str_strip()
-		s/^\s+//sx;
-		s/\s+$//sx;
+    while ( <$fh> ) {
+        # str_strip()
+        s/^\s+//sx;
+        s/\s+$//sx;
 
-		my $line = $_;
+        my $line = $_;
 
-		# skip empty and comment lines
-		if ( (not $line) || ($line =~ m/^[#]/sx) ) {
-			;
+        # skip empty and comment lines
+        if ( (not $line) || ($line =~ m/^[#]/sx) ) {
+            ;
 
-		} elsif ( $line =~ $re_vardef ) {
-			my $name = $+{'name'};
-			my $val = $+{'val_squoted'} // $+{'val_dquoted'} // $+{'val_bare'};
+        } elsif ( $line =~ $re_vardef ) {
+            my $name = $+{'name'};
+            my $val = $+{'val_squoted'} // $+{'val_dquoted'} // $+{'val_bare'};
 
-			$self->set ( $name, $val );
+            $self->set ( $name, $val );
 
-		} else {
-			die "cannot parse while reading config file ${source}: ${line}\n";
-		}
-	}
+        } else {
+            die "cannot parse while reading config file ${source}: ${line}\n";
+        }
+    }
 }

@@ -65,7 +65,7 @@ case "$-" in
    *i*)
       case "${0}" in
          sh|*/sh) : ;;
-	 *) . /etc/shinit/fancy-ps1.sh ;;
+     *) . /etc/shinit/fancy-ps1.sh ;;
       esac
    ;;
 esac

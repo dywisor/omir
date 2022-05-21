@@ -37,7 +37,7 @@ eval "shinit_get_sysexit_name() {
       eval "shinit_get_sysexit_name() { shinit_static_get_sysexit_name \"\${@}\"; }"
    fi
 }
-	 
+     
 
 unset -f shinit_get_sysexit_name
 shinit_eval_get_sysexit_name || :

@@ -27,42 +27,42 @@ my $short_usage = "${prog_name} [-C <dir>] [-d] [-s <seconds>] [-t <seconds>] cm
 
 
 sub main_get_opts {
-	my $opts = shift;
+    my $opts = shift;
 
-	my @options_def = (
-		'help|h',
+    my @options_def = (
+        'help|h',
         'chdir|C=s',
         'detach|d',
         'sleep|s=i',
         'timeout|t=i',
     );
 
-	return GetOptions($opts, @options_def);
+    return GetOptions($opts, @options_def);
 }
 
 
 sub main_print_help {
-	my $out = shift // *STDOUT;
-	printf {$out} "Usage: %s\n", $short_usage;
+    my $out = shift // *STDOUT;
+    printf {$out} "Usage: %s\n", $short_usage;
 }
 
 
 sub main {
-	# parse options
-	my $opts = {};
+    # parse options
+    my $opts = {};
 
-	if ( ! main_get_opts ( $opts ) ) {
-		main_print_help(*STDERR);
-		die "Bad usage.\n";
+    if ( ! main_get_opts ( $opts ) ) {
+        main_print_help(*STDERR);
+        die "Bad usage.\n";
 
-	} elsif ( $opts->{help} ) {
-		main_print_help();
-		exit 0;
+    } elsif ( $opts->{help} ) {
+        main_print_help();
+        exit 0;
 
     } elsif ( ! scalar @ARGV ) {
         die "no command given.\n";
 
-	} else {
+    } else {
         main_wait ( $opts, \@ARGV );
         die "logical error.\n";
     }
