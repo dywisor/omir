@@ -34,220 +34,220 @@ use feature qw( say );
 our $CFG;
 
 our $IP_VERSION_CONFIG_DEF = {
-	'4' => {
-		version        => 4,
-		bsize          => 8,
-		nblocks        => 4,
-		bsep           => '.',
-		bhex           => 0,
-		f_compress_str => undef,
-	},
+    '4' => {
+        version        => 4,
+        bsize          => 8,
+        nblocks        => 4,
+        bsep           => '.',
+        bhex           => 0,
+        f_compress_str => undef,
+    },
 
-	'6' => {
-		version        => 6,
-		bsize          => 16,
-		nblocks        => 8,
-		bsep           => ':',
-		bhex           => 1,
-		f_compress_str => sub {
-			my $s = shift;
-			# ref: https://stackoverflow.com/a/48031751
-			$s =~ s/\b:?(?:0+:?){2,}/::/sx;
-			$s;
-		},
-	},
+    '6' => {
+        version        => 6,
+        bsize          => 16,
+        nblocks        => 8,
+        bsep           => ':',
+        bhex           => 1,
+        f_compress_str => sub {
+            my $s = shift;
+            # ref: https://stackoverflow.com/a/48031751
+            $s =~ s/\b:?(?:0+:?){2,}/::/sx;
+            $s;
+        },
+    },
 };
 
 
 sub init_config {
-	my $key = shift or die;
-	my $cfg;
+    my $key = shift or die;
+    my $cfg;
 
-	$cfg = $IP_VERSION_CONFIG_DEF->{$key};
-	die "Invalid IP version.\n" unless (defined $cfg);
+    $cfg = $IP_VERSION_CONFIG_DEF->{$key};
+    die "Invalid IP version.\n" unless (defined $cfg);
 
-	$cfg->{brange} = [];
-	push @{$cfg->{brange}}, (0 .. ($cfg->{nblocks} - 1));
+    $cfg->{brange} = [];
+    push @{$cfg->{brange}}, (0 .. ($cfg->{nblocks} - 1));
 
-	$cfg->{bsep_expr} = quotemeta ($cfg->{bsep});
+    $cfg->{bsep_expr} = quotemeta ($cfg->{bsep});
 
-	$cfg;
+    $cfg;
 }
 
 
 # main ( ip_version, reference_addr, netmask|prefixlen, *derive_addr_arg )
 sub main {
-	my $ip_version_arg = shift or die "Missing IP version.\n";
-	$ip_version_arg =~ s/^[-]//sx;
+    my $ip_version_arg = shift or die "Missing IP version.\n";
+    $ip_version_arg =~ s/^[-]//sx;
 
-	$CFG = init_config ( $ip_version_arg ) or die;
+    $CFG = init_config ( $ip_version_arg ) or die;
 
-	my $reference_addr;
-	my $netmask;
-	my @ref_addr_blocks;
-	my @netmask_blocks;
+    my $reference_addr;
+    my $netmask;
+    my @ref_addr_blocks;
+    my @netmask_blocks;
 
-	$reference_addr = shift or die "Missing reference addr.\n";
-	$netmask = shift or die "Missing netmask.\n";
+    $reference_addr = shift or die "Missing reference addr.\n";
+    $netmask = shift or die "Missing netmask.\n";
 
-	@ref_addr_blocks = bsplit ( $reference_addr, 0 );
+    @ref_addr_blocks = bsplit ( $reference_addr, 0 );
 
-	if ( $netmask =~ m/^\/?([0-9]+)$/sx ) {
-		@netmask_blocks = create_netmask_blocks_from_prefixlen ( 0 + $1 );
-	} else {
-		@netmask_blocks = bsplit ( $netmask, 0 );
-	}
+    if ( $netmask =~ m/^\/?([0-9]+)$/sx ) {
+        @netmask_blocks = create_netmask_blocks_from_prefixlen ( 0 + $1 );
+    } else {
+        @netmask_blocks = bsplit ( $netmask, 0 );
+    }
 
 
-	if (
-		(scalar @ref_addr_blocks != $CFG->{nblocks})
-		|| (scalar @netmask_blocks != $CFG->{nblocks})
-	) {
-		die "invalid addr / netmask";
-	}
+    if (
+        (scalar @ref_addr_blocks != $CFG->{nblocks})
+        || (scalar @netmask_blocks != $CFG->{nblocks})
+    ) {
+        die "invalid addr / netmask";
+    }
 
-	my @net_addr_blocks = b_and ( \@netmask_blocks, \@ref_addr_blocks );
+    my @net_addr_blocks = b_and ( \@netmask_blocks, \@ref_addr_blocks );
 
-	while (@_) {
-		my $arg = shift;
-		my @arg_blocks = bsplit ( $arg, 1 );
+    while (@_) {
+        my $arg = shift;
+        my @arg_blocks = bsplit ( $arg, 1 );
 
-		my @arg_addr_blocks = b_or ( \@net_addr_blocks, \@arg_blocks );
-		my $addr_str = join_addr ( \@arg_addr_blocks );
+        my @arg_addr_blocks = b_or ( \@net_addr_blocks, \@arg_blocks );
+        my $addr_str = join_addr ( \@arg_addr_blocks );
 
-		# check if derived addr is still in @net_addr_blocks
-		my @arg_net_blocks = b_and ( \@netmask_blocks, \@arg_addr_blocks );
-		if ( grep { $arg_net_blocks[$_] != $net_addr_blocks[$_]; } @{$CFG->{brange}} ) {
-			die "derived addr is out of bounds: ${addr_str}\n";
+        # check if derived addr is still in @net_addr_blocks
+        my @arg_net_blocks = b_and ( \@netmask_blocks, \@arg_addr_blocks );
+        if ( grep { $arg_net_blocks[$_] != $net_addr_blocks[$_]; } @{$CFG->{brange}} ) {
+            die "derived addr is out of bounds: ${addr_str}\n";
 
-		} else {
-			say $addr_str;
-		}
-	}
+        } else {
+            say $addr_str;
+        }
+    }
 
-	return 0;
+    return 0;
 }
 
 
 sub b_and {
-	my $a = shift;
-	my $b = shift;
+    my $a = shift;
+    my $b = shift;
 
-	map { $a->[$_] & $b->[$_] } @{$CFG->{brange}};
+    map { $a->[$_] & $b->[$_] } @{$CFG->{brange}};
 }
 
 
 sub b_or {
-	my $a = shift;
-	my $b = shift;
+    my $a = shift;
+    my $b = shift;
 
-	map { $a->[$_] | $b->[$_] } @{$CFG->{brange}};
+    map { $a->[$_] | $b->[$_] } @{$CFG->{brange}};
 }
 
 
 sub join_addr {
-	my $arg = shift;
-	my $s;
+    my $arg = shift;
+    my $s;
 
-	if ( $CFG->{bhex} ) {
-		$s = join $CFG->{bsep}, map { sprintf "%x", $_; } @$arg;
-	} else {
-		$s = join $CFG->{bsep}, @$arg;
-	}
+    if ( $CFG->{bhex} ) {
+        $s = join $CFG->{bsep}, map { sprintf "%x", $_; } @$arg;
+    } else {
+        $s = join $CFG->{bsep}, @$arg;
+    }
 
-	if ( defined $CFG->{f_compress_str} ) {
-		$s = &{ $CFG->{f_compress_str} } ( $s );
-	}
+    if ( defined $CFG->{f_compress_str} ) {
+        $s = &{ $CFG->{f_compress_str} } ( $s );
+    }
 
-	$s;
+    $s;
 }
 
 
 sub _bsplit {
-	my $arg = shift;
-	my $bsep_expr = $CFG->{bsep_expr};
+    my $arg = shift;
+    my $bsep_expr = $CFG->{bsep_expr};
 
-	split /${bsep_expr}/sx, $arg;
+    split /${bsep_expr}/sx, $arg;
 }
 
 
 sub bsplit {
-	my $arg = shift;
-	my $want_fillup = shift // 0;
-	my $convert_block;
+    my $arg = shift;
+    my $want_fillup = shift // 0;
+    my $convert_block;
 
-	if ( $CFG->{bhex} ) {
-		$convert_block = sub { 0 + hex (shift); };
-	} else {
-		$convert_block = sub { 0 + (shift); };
-	}
+    if ( $CFG->{bhex} ) {
+        $convert_block = sub { 0 + hex (shift); };
+    } else {
+        $convert_block = sub { 0 + (shift); };
+    }
 
-	my @parsed_blocks = _bsplit ( $arg );
-	my $num_parsed_blocks = (scalar @parsed_blocks);
-	my $num_blocks_missing = $CFG->{nblocks} - $num_parsed_blocks;
+    my @parsed_blocks = _bsplit ( $arg );
+    my $num_parsed_blocks = (scalar @parsed_blocks);
+    my $num_blocks_missing = $CFG->{nblocks} - $num_parsed_blocks;
 
-	my @blocks;
+    my @blocks;
 
-	# do not pump if addr is not compressable
-	my $did_pump = (defined $CFG->{f_compress_str}) ? 0 : 1;
+    # do not pump if addr is not compressable
+    my $did_pump = (defined $CFG->{f_compress_str}) ? 0 : 1;
 
-	# pump first empty block (mostly relevant for IPv6, "a::b")
-	foreach my $parsed_block ( @parsed_blocks ) {
-		if ( $parsed_block eq '' ) {
-			# empty block needs to be pumped as well
-			$num_blocks_missing += 1;
+    # pump first empty block (mostly relevant for IPv6, "a::b")
+    foreach my $parsed_block ( @parsed_blocks ) {
+        if ( $parsed_block eq '' ) {
+            # empty block needs to be pumped as well
+            $num_blocks_missing += 1;
 
-			if ( $did_pump ) { die "Will not pump again: ${arg}\n"; }
+            if ( $did_pump ) { die "Will not pump again: ${arg}\n"; }
 
-			for ( my $k = 0; $k < $num_blocks_missing; $k++ ) {
-				push @blocks, 0;
-			}
+            for ( my $k = 0; $k < $num_blocks_missing; $k++ ) {
+                push @blocks, 0;
+            }
 
-			$did_pump = 1;
-			$num_blocks_missing = $CFG->{nblocks} - $num_parsed_blocks;  # useless
+            $did_pump = 1;
+            $num_blocks_missing = $CFG->{nblocks} - $num_parsed_blocks;  # useless
 
-		} else {
-			push @blocks, &$convert_block ( $parsed_block );
-		}
-	}
+        } else {
+            push @blocks, &$convert_block ( $parsed_block );
+        }
+    }
 
-	# fillup higher blocks if requested
-	$num_blocks_missing = $CFG->{nblocks} - (scalar @blocks);
-	if ( $num_blocks_missing && $want_fillup ) {
-		for ( my $k = 0; $k < $num_blocks_missing; $k++ ) {
-			unshift @blocks, 0;
-		}
-	}
+    # fillup higher blocks if requested
+    $num_blocks_missing = $CFG->{nblocks} - (scalar @blocks);
+    if ( $num_blocks_missing && $want_fillup ) {
+        for ( my $k = 0; $k < $num_blocks_missing; $k++ ) {
+            unshift @blocks, 0;
+        }
+    }
 
-	@blocks;
+    @blocks;
 }
 
 
 sub create_netmask_blocks_from_prefixlen {
-	my $bsize = $CFG->{bsize};
+    my $bsize = $CFG->{bsize};
 
-	my $prefixlen = shift;
-	my @blocks = map { 0 } @{$CFG->{brange}};
+    my $prefixlen = shift;
+    my @blocks = map { 0 } @{$CFG->{brange}};
 
-	my $num_full_blocks = int($prefixlen / $bsize);
-	my $brem = $prefixlen % $bsize;
+    my $num_full_blocks = int($prefixlen / $bsize);
+    my $brem = $prefixlen % $bsize;
 
-	# fill full blocks, if any
-	if ( $num_full_blocks ) {
-		my $bfull = (2**$bsize) - 1;
+    # fill full blocks, if any
+    if ( $num_full_blocks ) {
+        my $bfull = (2**$bsize) - 1;
 
-		for ( my $k = 0; $k < $num_full_blocks; $k++ ) {
-			$blocks[$k] = $bfull;
-		}
-	}
+        for ( my $k = 0; $k < $num_full_blocks; $k++ ) {
+            $blocks[$k] = $bfull;
+        }
+    }
 
-	# fill partial block, if any
-	#   set the $brem highest bits to 1, leaving the rest at zero
-	for ( my $k = 0; $k < $brem; $k++ ) {
-		$blocks[$num_full_blocks] |= (2**($bsize - 1 - $k));
-	}
+    # fill partial block, if any
+    #   set the $brem highest bits to 1, leaving the rest at zero
+    for ( my $k = 0; $k < $brem; $k++ ) {
+        $blocks[$num_full_blocks] |= (2**($bsize - 1 - $k));
+    }
 
-	@blocks;
+    @blocks;
 }
 
 exit main ( @ARGV );

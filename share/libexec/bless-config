@@ -8,39 +8,39 @@ use strict;
 use feature qw( say );
 
 my $vars = {
-	'_' => '@',
+    '_' => '@',
 };
 
 foreach my $cfg_file ( @ARGV ) {
-	open my $fh, '<', $cfg_file or die;
+    open my $fh, '<', $cfg_file or die;
 
-	while ( <$fh> ) {
-		# str_strip()
-		s/^\s+//sx;
-		s/\s+$//sx;
+    while ( <$fh> ) {
+        # str_strip()
+        s/^\s+//sx;
+        s/\s+$//sx;
 
-		# skip empty and comment lines
-		if ( m/^[^#]/sx ) {
-			if (
-				( m/^([A-Z_0-9]+)\s*=\s*\"((?:[^\"]|\\.)*)\"\s*$/sx )
-				|| ( m/^([A-Z_0-9]+)\s*=\s*\'((?:[^\"]|\\.)*)\'\s*$/sx )
-				|| ( m/^([A-Z_0-9]+)\s*=\s*(\S+(?:\s+\S+)*)\s*$/sx )
-			) {
-				my $name = $1;
-				my $val = $2;
-				# unescape
-				$val =~ s/\\(.)/$1/gmx;
+        # skip empty and comment lines
+        if ( m/^[^#]/sx ) {
+            if (
+                ( m/^([A-Z_0-9]+)\s*=\s*\"((?:[^\"]|\\.)*)\"\s*$/sx )
+                || ( m/^([A-Z_0-9]+)\s*=\s*\'((?:[^\"]|\\.)*)\'\s*$/sx )
+                || ( m/^([A-Z_0-9]+)\s*=\s*(\S+(?:\s+\S+)*)\s*$/sx )
+            ) {
+                my $name = $1;
+                my $val = $2;
+                # unescape
+                $val =~ s/\\(.)/$1/gmx;
 
-				$vars->{$name} = $val;
+                $vars->{$name} = $val;
 
-			} else {
-				die "${cfg_file}: unmatched: ${_}";
-			}
+            } else {
+                die "${cfg_file}: unmatched: ${_}";
+            }
 
-		}
-	}
+        }
+    }
 
-	close $fh or warn;
+    close $fh or warn;
 }
 
 
@@ -48,21 +48,21 @@ my $in_fh = *STDIN;
 my $out_fh = *STDOUT;
 
 sub interpolate {
-	my $key = shift;
-	my $val = $vars->{$key};
+    my $key = shift;
+    my $val = $vars->{$key};
 
-	if ( $val ) {
-		return $val;
-	} else {
-		die "undefined or empty var: ${key}";
-	}
+    if ( $val ) {
+        return $val;
+    } else {
+        die "undefined or empty var: ${key}";
+    }
 }
 
 while ( <$in_fh> )  {
-	chomp;
-	my $line = $_;
+    chomp;
+    my $line = $_;
 
-	$line =~ s/[@]{2}([^@]+)[@]{2}/interpolate($1)/egmx;
-	say {$out_fh} $line;
+    $line =~ s/[@]{2}([^@]+)[@]{2}/interpolate($1)/egmx;
+    say {$out_fh} $line;
 }
 

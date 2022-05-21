@@ -20,23 +20,23 @@ my $short_usage = "${prog_name} ${usage_opts} [-o <options>] <mp>";
 
 
 sub main_get_opts {
-	my $opts = shift;
+    my $opts = shift;
 
-	my @options_def = (
-		'help|h',
-		'options|o=s',
+    my @options_def = (
+        'help|h',
+        'options|o=s',
     );
 
     my $mfs_opts = MFSMountOptions->get_opts_parse();
     push @options_def, @$mfs_opts;
 
-	return GetOptions($opts, @options_def);
+    return GetOptions($opts, @options_def);
 }
 
 
 sub main_print_help {
-	my $out = shift // *STDOUT;
-	printf {$out} "Usage: %s\n", $short_usage;
+    my $out = shift // *STDOUT;
+    printf {$out} "Usage: %s\n", $short_usage;
 }
 
 sub normalize_mp {
@@ -50,26 +50,26 @@ sub normalize_mp {
 
 
 sub main {
-	my $arg;
-	my $mp;
+    my $arg;
+    my $mp;
     my $mnt_opts;
 
-	# parse options
-	my $opts = {};
+    # parse options
+    my $opts = {};
 
-	if ( ! main_get_opts ( $opts ) ) {
-		main_print_help(*STDERR);
-		die "Bad usage.\n";
+    if ( ! main_get_opts ( $opts ) ) {
+        main_print_help(*STDERR);
+        die "Bad usage.\n";
 
-	} elsif ( $opts->{'help'} ) {
-		main_print_help();
-		exit 0;
-	}
+    } elsif ( $opts->{'help'} ) {
+        main_print_help();
+        exit 0;
+    }
 
     delete $opts->{'help'};
 
-	# get mountpoint from @ARGV and normalize it
-	$arg = (shift @ARGV) or die "Missing mountpoint\n";
+    # get mountpoint from @ARGV and normalize it
+    $arg = (shift @ARGV) or die "Missing mountpoint\n";
     $mp = normalize_mp ( $arg ) or die;
 
     $mnt_opts = MFSMountOptions->new();

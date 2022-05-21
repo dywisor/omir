@@ -23,9 +23,9 @@ my $src_rel_tmp = File::Spec->abs2rel ( $src, $dst ) or die "Failed to get relat
 my @src_rel_parts = File::Spec->splitdir ( $src_rel_tmp );
 
 if ( (scalar @src_rel_parts) && ($src_rel_parts[0] eq '..') ) {
-	shift @src_rel_parts;
+    shift @src_rel_parts;
 } else {
-	die "not implemented";
+    die "not implemented";
 }
 
 my $src_rel = File::Spec->catdir ( @src_rel_parts );

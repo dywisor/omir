@@ -5,7 +5,7 @@
 # Make sure to add it to the "netboot" group.
 
 local__ai_ifconfig() {
-	return 0
+    return 0
 }
 
 local__ai_ifconfig

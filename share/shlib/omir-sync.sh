@@ -11,7 +11,7 @@ OMIR_RSYNC_EXTRA_OPTS="--progress --size-only"
 #  Checks whether the given path exists on the remote end.
 #
 __omir_rsync_check_exist() {
-	rsync --quiet --dry-run "${1}/${2#/}"
+    rsync --quiet --dry-run "${1}/${2#/}"
 }
 
 
@@ -23,15 +23,15 @@ __omir_rsync_check_exist() {
 #  %argv should at least include a src and a dst argument.
 #
 __omir_rsync() {
-	rsync \
-		-rv \
-		--delete --delete-delay --delay-updates --fuzzy \
-		--exclude '.~tmp~' --exclude '.*' \
-		${OMIR_RSYNC_BWLIMIT:+--bwlimit=${OMIR_RSYNC_BWLIMIT}} \
-		${OMIR_RSYNC_EXTRA_OPTS-} \
-		--chmod=F0644,D0755 \
-		\
-		"${@}"
+    rsync \
+        -rv \
+        --delete --delete-delay --delay-updates --fuzzy \
+        --exclude '.~tmp~' --exclude '.*' \
+        ${OMIR_RSYNC_BWLIMIT:+--bwlimit=${OMIR_RSYNC_BWLIMIT}} \
+        ${OMIR_RSYNC_EXTRA_OPTS-} \
+        --chmod=F0644,D0755 \
+        \
+        "${@}"
 }
 
 
@@ -59,84 +59,84 @@ __omir_rsync() {
 #     (2) from the local mirror directory
 #
 omir_fetch_openbsd_releases() {
-	local releases
-	local rel
-	local rel_filter_list
-	local v0
+    local releases
+    local rel
+    local rel_filter_list
+    local v0
 
-	set -- ${*}
-	[ ${#} -gt 0 ] || set -- ${OMIR_REL:?}
+    set -- ${*}
+    [ ${#} -gt 0 ] || set -- ${OMIR_REL:?}
 
-	if [ ${#} -eq 0 ]; then
-		eerror "ABORTING - no releases specified."
-		return 4
-	fi
-	releases="${*}"
+    if [ ${#} -eq 0 ]; then
+        eerror "ABORTING - no releases specified."
+        return 4
+    fi
+    releases="${*}"
 
-	# loop over releases and check whether they exist on the remote end
-	set --
-	for rel in ${releases}; do
-		# pick a file that should exist on the remote mirror -- .../amd64/bsd
-		__omir_rsync_check_exist "${OMIR_UPSTREAM_MIRROR_URI}" "${rel}/amd64/bsd" || set -- "${@}" "${rel}"
-	done
+    # loop over releases and check whether they exist on the remote end
+    set --
+    for rel in ${releases}; do
+        # pick a file that should exist on the remote mirror -- .../amd64/bsd
+        __omir_rsync_check_exist "${OMIR_UPSTREAM_MIRROR_URI}" "${rel}/amd64/bsd" || set -- "${@}" "${rel}"
+    done
 
-	if [ ${#} -gt 0 ]; then
-		eerror "ABORTING - missing releases on remote server: ${*}"
-		return 5
-	fi
+    if [ ${#} -gt 0 ]; then
+        eerror "ABORTING - missing releases on remote server: ${*}"
+        return 5
+    fi
 
-	# collect filter lists
-	#   start with the 'base begin' list
-	set --
+    # collect filter lists
+    #   start with the 'base begin' list
+    set --
 
-	if ! pick_config_file "${OMIR_FILTER_LIST}.head"; then
-		eerror "${OMIR_FILTER_LIST}.head not found"
-		return 5
-	elif [ -s "${v0}" ]; then
-		set -- "${@}" --filter ". ${v0}"
-	fi
+    if ! pick_config_file "${OMIR_FILTER_LIST}.head"; then
+        eerror "${OMIR_FILTER_LIST}.head not found"
+        return 5
+    elif [ -s "${v0}" ]; then
+        set -- "${@}" --filter ". ${v0}"
+    fi
 
-	# loop over releases and add individual filter lists
-	#   if there's no list for a release, create a new one from template
-	for rel in ${releases}; do
-		rel_filter_list="${OMIR_FILTER_LIST}.${rel}"
+    # loop over releases and add individual filter lists
+    #   if there's no list for a release, create a new one from template
+    for rel in ${releases}; do
+        rel_filter_list="${OMIR_FILTER_LIST}.${rel}"
 
-		if [ -f "${rel_filter_list}" ]; then
-			# exists, ok
-			:
+        if [ -f "${rel_filter_list}" ]; then
+            # exists, ok
+            :
 
-		elif [ -e "${rel_filter_list}" ] || [ -h "${rel_filter_list}" ]; then
-			# not a file
-			return 225
+        elif [ -e "${rel_filter_list}" ] || [ -h "${rel_filter_list}" ]; then
+            # not a file
+            return 225
 
-		elif ! pick_config_file "${OMIR_FILTER_LIST}.skel"; then
-			eerror "Release filter list skel ${OMIR_FILTER_LIST}.skel missing"
-			return 5
+        elif ! pick_config_file "${OMIR_FILTER_LIST}.skel"; then
+            eerror "Release filter list skel ${OMIR_FILTER_LIST}.skel missing"
+            return 5
 
-		elif ! {
-			sed -r -e "s=@@REL@@=${rel}=g" < "${v0}" > "${rel_filter_list}.new"
-		}; then
-			# failed to render template
-			return 230
+        elif ! {
+            sed -r -e "s=@@REL@@=${rel}=g" < "${v0}" > "${rel_filter_list}.new"
+        }; then
+            # failed to render template
+            return 230
 
-		elif ! mv -- "${rel_filter_list}.new" "${rel_filter_list}"; then
-			# failed to put new filter list file into place
-			return 231
-		fi
+        elif ! mv -- "${rel_filter_list}.new" "${rel_filter_list}"; then
+            # failed to put new filter list file into place
+            return 231
+        fi
 
-		# add filter list to argv
-		set -- "${@}" --filter ". ${OMIR_FILTER_LIST}.${rel}"
-	done
+        # add filter list to argv
+        set -- "${@}" --filter ". ${OMIR_FILTER_LIST}.${rel}"
+    done
 
-	# add 'base end' list
-	if ! pick_config_file "${OMIR_FILTER_LIST}.tail"; then
-		eerror "${OMIR_FILTER_LIST}.tail not found"
-		return 5
-	elif [ -s "${v0}" ]; then
-		set -- "${@}" --filter ". ${v0}"
-	fi
+    # add 'base end' list
+    if ! pick_config_file "${OMIR_FILTER_LIST}.tail"; then
+        eerror "${OMIR_FILTER_LIST}.tail not found"
+        return 5
+    elif [ -s "${v0}" ]; then
+        set -- "${@}" --filter ". ${v0}"
+    fi
 
-	__omir_rsync "${@}" -- "${OMIR_UPSTREAM_MIRROR_URI%/}/" "${MIRROR_OPENBSD%/}/"
+    __omir_rsync "${@}" -- "${OMIR_UPSTREAM_MIRROR_URI%/}/" "${MIRROR_OPENBSD%/}/"
 }
 
 
@@ -154,37 +154,37 @@ omir_fetch_openbsd_releases() {
 #  but all files below the firmware mirror directory will be affected by chmod().
 #
 omir_fetch_openbsd_firmware() {
-	local releases
-	local firmware_dst
-	local rel
+    local releases
+    local firmware_dst
+    local rel
 
-	set -- ${*}
-	[ ${#} -gt 0 ] || set -- ${OMIR_REL:?}
+    set -- ${*}
+    [ ${#} -gt 0 ] || set -- ${OMIR_REL:?}
 
-	if [ ${#} -eq 0 ]; then
-		eerror "ABORTING - no releases specified."
-		return 4
-	fi
-	releases="${*}"
+    if [ ${#} -eq 0 ]; then
+        eerror "ABORTING - no releases specified."
+        return 4
+    fi
+    releases="${*}"
 
-	mkdir -p -- "${MIRROR_OPENBSD_FW}/" || return
+    mkdir -p -- "${MIRROR_OPENBSD_FW}/" || return
 
-	for rel in ${releases}; do
-		firmware_dst="${MIRROR_OPENBSD_FW}/${rel}"
+    for rel in ${releases}; do
+        firmware_dst="${MIRROR_OPENBSD_FW}/${rel}"
 
-		mkdir -p -- "${firmware_dst}" || return
-		einfo "Fetching firmware for ${rel}"
-		shamir --base64 -C "${firmware_dst}" "${OMIR_UPSTREAM_FW_URI}/${rel}" || return
-	done
+        mkdir -p -- "${firmware_dst}" || return
+        einfo "Fetching firmware for ${rel}"
+        shamir --base64 -C "${firmware_dst}" "${OMIR_UPSTREAM_FW_URI}/${rel}" || return
+    done
 
-	find "${MIRROR_OPENBSD_FW}" -mindepth 1 -type f -exec chmod 0644 '{}' +
-	find "${MIRROR_OPENBSD_FW}" -mindepth 1 -type d -exec chmod 0755 '{}' +
+    find "${MIRROR_OPENBSD_FW}" -mindepth 1 -type f -exec chmod 0644 '{}' +
+    find "${MIRROR_OPENBSD_FW}" -mindepth 1 -type d -exec chmod 0755 '{}' +
 }
 
 
 # FIXME: move to base
 __omir_sync_xargs_mkindex() {
-	xargs -0 -r -n 1 sh -c 'cd "${1}" && omir-mkindex > ./index.txt' _
+    xargs -0 -r -n 1 sh -c 'cd "${1}" && omir-mkindex > ./index.txt' _
 }
 
 
@@ -197,7 +197,7 @@ __omir_sync_xargs_mkindex() {
 #  COULDFIX: all directories named "firmware" will be skipped.
 #
 omir_mirror_mkindex() {
-	find "${MIRROR_OPENBSD%/}/" -type d -not -empty \
-		\( -name firmware -prune -or -print0 \) \
-		| __omir_sync_xargs_mkindex
+    find "${MIRROR_OPENBSD%/}/" -type d -not -empty \
+        \( -name firmware -prune -or -print0 \) \
+        | __omir_sync_xargs_mkindex
 }

@@ -46,24 +46,24 @@ my $prog_name   = basename($0);
 my $short_usage = "${prog_name} [-c|-l] [-B] [-E <expr>] [-C <dstdir>] <url>";
 
 sub main_get_opts {
-	my $opts = shift;
+    my $opts = shift;
 
-	my @options_def = (
-		'help|h',
-		'dstdir|C=s',
-		'check|c',
-		'list|l',
-		'expr|E=s',
-		'base64|B',
-	);
+    my @options_def = (
+        'help|h',
+        'dstdir|C=s',
+        'check|c',
+        'list|l',
+        'expr|E=s',
+        'base64|B',
+    );
 
-	return GetOptions($opts, @options_def);
+    return GetOptions($opts, @options_def);
 }
 
 
 sub main_print_help {
-	my $out = shift // *STDOUT;
-	printf {$out} "Usage: %s\n", $short_usage;
+    my $out = shift // *STDOUT;
+    printf {$out} "Usage: %s\n", $short_usage;
 }
 
 
@@ -73,9 +73,9 @@ sub main_print_help {
 #   Concatenates two non-empty strings.
 #
 sub f_suffix {
-	my $suffix = shift or die;
-	my $name = shift or die;
-	return ($name . $suffix);
+    my $suffix = shift or die;
+    my $name = shift or die;
+    return ($name . $suffix);
 }
 
 
@@ -95,8 +95,8 @@ sub f_old { return f_suffix ( '.old', @_ ); }
 #   Dies if the file still exists after calling this function.
 #
 sub rmfile {
-	my $filepath = shift;
-	unlink $filepath or (! $!{EEXIST}) or die "Failed to remove ${filepath}!\n";
+    my $filepath = shift;
+    unlink $filepath or (! $!{EEXIST}) or die "Failed to remove ${filepath}!\n";
 }
 
 
@@ -105,23 +105,23 @@ sub rmfile {
 #   Reads the given SHA256 file and returns a filename -> SHA256 checksum mapping.
 #
 sub get_file_map {
-	my $sha_file = shift or die;
+    my $sha_file = shift or die;
 
-	my $fmap = {};
+    my $fmap = {};
 
-	open my $fh, '<', $sha_file or die "Failed to open ${sha_file}: $!";
-	while ( <$fh> ) {
-		if ( m/^\s*(SHA256)\s+\(([^\)]+)\)\s*=\s*(\S+)\s*$/sx ) {
-			# ignore chk_type $1 for now
-			$fmap->{$2} = $3;
+    open my $fh, '<', $sha_file or die "Failed to open ${sha_file}: $!";
+    while ( <$fh> ) {
+        if ( m/^\s*(SHA256)\s+\(([^\)]+)\)\s*=\s*(\S+)\s*$/sx ) {
+            # ignore chk_type $1 for now
+            $fmap->{$2} = $3;
 
-		} else {
-			warn "unmatched: ${_}\n";
-		}
-	}
-	close $fh or warn;
+        } else {
+            warn "unmatched: ${_}\n";
+        }
+    }
+    close $fh or warn;
 
-	return $fmap;
+    return $fmap;
 }
 
 # str get_file_sha256 ( str filepath, bool base64_mode )
@@ -129,27 +129,27 @@ sub get_file_map {
 #    Calculates and returns the SHA256 checksum for the given file.
 #
 sub get_file_sha256 {
-	my $filepath = shift or die "No file path?";
-	my $base64_mode = shift;
-	my $shasum;
+    my $filepath = shift or die "No file path?";
+    my $base64_mode = shift;
+    my $shasum;
 
-	my $hashobj = Digest::SHA->new ( 'sha256' );
+    my $hashobj = Digest::SHA->new ( 'sha256' );
 
-	$hashobj->addfile ( $filepath ) or die "Failed to hash file ${filepath}: $!";
+    $hashobj->addfile ( $filepath ) or die "Failed to hash file ${filepath}: $!";
 
-	if ( $base64_mode ) {
-		$shasum = $hashobj->b64digest or die "Failed to get SHA256 hash";
+    if ( $base64_mode ) {
+        $shasum = $hashobj->b64digest or die "Failed to get SHA256 hash";
 
-		# emulate sha256(1) behavior, append '='
-		#   https://perldoc.perl.org/Digest/SHA.html#PADDING-OF-BASE64-DIGESTS
-		while ( (length $shasum) % 4 ) { $shasum .= '='; }
+        # emulate sha256(1) behavior, append '='
+        #   https://perldoc.perl.org/Digest/SHA.html#PADDING-OF-BASE64-DIGESTS
+        while ( (length $shasum) % 4 ) { $shasum .= '='; }
 
-	} else {
-		# hex mode
-		$shasum = $hashobj->hexdigest;
-	}
+    } else {
+        # hex mode
+        $shasum = $hashobj->hexdigest;
+    }
 
-	return $shasum;
+    return $shasum;
 }
 
 
@@ -161,35 +161,35 @@ sub get_file_sha256 {
 #    Any existing dst will be removed to prior to rotating the file.
 #
 sub rotfile {
-	my $src;
-	my $dst;
+    my $src;
+    my $dst;
 
-	if ( scalar @_ == 2 ) {
-		$src = shift or die;
-		$dst = shift or die;
+    if ( scalar @_ == 2 ) {
+        $src = shift or die;
+        $dst = shift or die;
 
-	} elsif ( scalar @_ == 1 ) {
-		$dst = shift or die;
-		$src = f_new($dst);
+    } elsif ( scalar @_ == 1 ) {
+        $dst = shift or die;
+        $src = f_new($dst);
 
-	} else {
-		die "usage error.";
-	}
+    } else {
+        die "usage error.";
+    }
 
-	rmfile ( $dst );
-	rename $src, $dst or die "Failed to replace ${dst}";
+    rmfile ( $dst );
+    rename $src, $dst or die "Failed to replace ${dst}";
 }
 
 
 my $opts = {};
 
 if ( ! main_get_opts ( $opts ) ) {
-	main_print_help(*STDERR);
-	die "Bad usage.";
+    main_print_help(*STDERR);
+    die "Bad usage.";
 
 } elsif ( $opts->{help} ) {
-	main_print_help();
-	exit 0;
+    main_print_help();
+    exit 0;
 }
 
 my $base64_mode = $opts->{'base64'};
@@ -207,8 +207,8 @@ if ( scalar @ARGV ) { die "Too many positional arguments."; }
 # @FEATURE_CREEP dstdir
 #   If given, change working directory to this path.
 if ( $opts->{dstdir} ) {
-	chdir $opts->{dstdir}
-		or die ("Failed to enter directory " .$opts->{dstdir} . " .\n");
+    chdir $opts->{dstdir}
+        or die ("Failed to enter directory " .$opts->{dstdir} . " .\n");
 }
 
 
@@ -225,27 +225,27 @@ my $file_map = get_file_map ( f_new($sha_file) ) or die "Failed to compute file 
 
 # --expr: drop files not matching the given regexp
 if ( $opts->{expr} ) {
-	my $expr = qr/$opts->{expr}/mx;
+    my $expr = qr/$opts->{expr}/mx;
 
-	my $file_map_redux = {};
+    my $file_map_redux = {};
 
-	foreach my $fname ( keys %$file_map ) {
-		if ( $fname =~ $expr ) {
-			$file_map_redux->{$fname} = $file_map->{$fname};
-		}
-	}
+    foreach my $fname ( keys %$file_map ) {
+        if ( $fname =~ $expr ) {
+            $file_map_redux->{$fname} = $file_map->{$fname};
+        }
+    }
 
-	$file_map = $file_map_redux;
+    $file_map = $file_map_redux;
 }
 
 # --list mode: print file names and exit
 if ( $opts->{list} ) {
-	foreach my $fname ( sort keys %$file_map ) {
-		say {*STDOUT} $fname;
-	}
+    foreach my $fname ( sort keys %$file_map ) {
+        say {*STDOUT} $fname;
+    }
 
-	rmfile ( f_new($sha_file) );
-	exit 0;
+    rmfile ( f_new($sha_file) );
+    exit 0;
 }
 
 # determine which files need to be downloaded
@@ -264,77 +264,77 @@ if ( $opts->{list} ) {
 #
 my @files_to_fetch;
 foreach my $fname ( sort keys %$file_map ) {
-	my $want_chk = $file_map->{$fname};
+    my $want_chk = $file_map->{$fname};
 
-	if ( -l $fname ) {
-		warn "Skipping symlink: ${fname}\n";
+    if ( -l $fname ) {
+        warn "Skipping symlink: ${fname}\n";
 
-	} elsif ( -f $fname ) {
-		my $have_chk = get_file_sha256 ( $fname, $base64_mode )
-			or die "Failed to get SHA256 for file ${fname}";
+    } elsif ( -f $fname ) {
+        my $have_chk = get_file_sha256 ( $fname, $base64_mode )
+            or die "Failed to get SHA256 for file ${fname}";
 
-		if ( $want_chk ne $have_chk ) {
-			push @files_to_fetch, $fname;
-		}
+        if ( $want_chk ne $have_chk ) {
+            push @files_to_fetch, $fname;
+        }
 
-	} elsif ( -e $fname ) {
-		warn "Skipping non-file ${fname}\n";
+    } elsif ( -e $fname ) {
+        warn "Skipping non-file ${fname}\n";
 
-	} else {
-		push @files_to_fetch, $fname;
-	}
+    } else {
+        push @files_to_fetch, $fname;
+    }
 }
 
 
 # --check report status and exit
 if ( $opts->{check} ) {
-	my $ftf_map = {};
-	foreach my $fname ( @files_to_fetch ) { $ftf_map->{$fname} = 1; }
+    my $ftf_map = {};
+    foreach my $fname ( @files_to_fetch ) { $ftf_map->{$fname} = 1; }
 
-	foreach my $fname ( sort keys %$file_map ) {
-		my $status_desc;
+    foreach my $fname ( sort keys %$file_map ) {
+        my $status_desc;
 
-		if ( exists $ftf_map->{$fname} ) {
-			$status_desc = "fetch";
-		} else {
-			$status_desc = "keep";
-		}
+        if ( exists $ftf_map->{$fname} ) {
+            $status_desc = "fetch";
+        } else {
+            $status_desc = "keep";
+        }
 
-		printf {*STDOUT} "%s %s\n", $status_desc, $fname;
-	}
+        printf {*STDOUT} "%s %s\n", $status_desc, $fname;
+    }
 
-	rmfile ( f_new($sha_file) );
-	exit ( ( scalar @files_to_fetch ) ? 1 : 0 );
+    rmfile ( f_new($sha_file) );
+    exit ( ( scalar @files_to_fetch ) ? 1 : 0 );
 }
 
 
 
 # bail out with success exit code if nothing (new) to download
 if ( not scalar @files_to_fetch ) {
-	printf {*STDOUT} "All files are up-to-date.\n";
-	rmfile ( f_new($sha_file) );
-	exit 0;
+    printf {*STDOUT} "All files are up-to-date.\n";
+    rmfile ( f_new($sha_file) );
+    exit 0;
 }
 
 
 
 # download files, recheck checksum
 foreach my $fname ( @files_to_fetch ) {
-	my $want_chk = $file_map->{$fname};
-	my $file_url = ($base_url . '/' . $fname);
-	my $dst = f_new($fname);
+    my $want_chk = $file_map->{$fname};
+    my $file_url = ($base_url . '/' . $fname);
+    my $dst = f_new($fname);
 
-	printf {*STDOUT} "Downloading: %s\n", $fname;
-	rmfile ( $dst );
-	FetchFile::fetch ( $dst, $file_url ) or die "Failed to fetch ${fname}";
+    printf {*STDOUT} "Downloading: %s\n", $fname;
+    rmfile ( $dst );
+    FetchFile::fetch ( $dst, $file_url ) or die "Failed to fetch ${fname}";
 
-	my $have_chk = get_file_sha256 ( $dst, $base64_mode )
-		or die "Failed to get SHA256 for file ${dst}";
+    my $have_chk = get_file_sha256 ( $dst, $base64_mode )
+        or die "Failed to get SHA256 for file ${dst}";
 
-	# remote sent us garbage or bitrot (EAGAIN) or MITM --> stop
-	if ( $want_chk ne $have_chk ) {
-		die "SHA256 mismatch after download: ${fname} from ${file_url}";
-	}
+    # remote sent us garbage or bitrot (EAGAIN) or MITM --> stop
+    if ( $want_chk ne $have_chk ) {
+        die "SHA256 mismatch after download: ${fname} from ${file_url}";
+    }
 }
 
 # put files into place
@@ -354,7 +354,7 @@ printf {*STDOUT} "Rotating files\n";
 # move (soon-to-be) old SHA256 file away
 #  This file will not exist on the initial run.
 if ( -e $sha_file ) {
-	rotfile ( $sha_file, f_old($sha_file) );
+    rotfile ( $sha_file, f_old($sha_file) );
 }
 
 # rotate downloaded files
@@ -378,77 +378,77 @@ our $IMPL;
 our $f_fetch;
 
 sub init {
-	if ( system ( 'ftp -MVo - -S dont file:///dev/null 1>/dev/null 2>/dev/null' ) == 0 ) {
-		$IMPL    = 'openbsd-ftp';
-		$f_fetch = \&openbsd_ftp_get_file;
-		return 1;
+    if ( system ( 'ftp -MVo - -S dont file:///dev/null 1>/dev/null 2>/dev/null' ) == 0 ) {
+        $IMPL    = 'openbsd-ftp';
+        $f_fetch = \&openbsd_ftp_get_file;
+        return 1;
 
-	} elsif ( system ( 'curl --version 1>/dev/null 2>/dev/null' ) == 0 ) {
-		$IMPL    = 'curl';
-		$f_fetch = \&curl_get_file;
-		return 1;
+    } elsif ( system ( 'curl --version 1>/dev/null 2>/dev/null' ) == 0 ) {
+        $IMPL    = 'curl';
+        $f_fetch = \&curl_get_file;
+        return 1;
 
-	} else {
-		return 0;
-	}
+    } else {
+        return 0;
+    }
 }
 
 
 sub fetch {
-	if ( not defined $f_fetch ) {
-		init() or die "Failed to find a suitable download program.";
-	}
+    if ( not defined $f_fetch ) {
+        init() or die "Failed to find a suitable download program.";
+    }
 
-	return &{ $f_fetch } ( @_ );
+    return &{ $f_fetch } ( @_ );
 }
 
 
 sub openbsd_ftp_get_cmdv {
-	my $outfile = shift;
-	my $url = shift;
+    my $outfile = shift;
+    my $url = shift;
 
-	my @cmdv = ('ftp', '-MnV');
+    my @cmdv = ('ftp', '-MnV');
 
-	push @cmdv, '-w', '45';
+    push @cmdv, '-w', '45';
 
-	if ( defined $outfile ) {
-		push @cmdv, '-o', $outfile;
-	} else {
-		push @cmdv, '-o', '-';
-	}
+    if ( defined $outfile ) {
+        push @cmdv, '-o', $outfile;
+    } else {
+        push @cmdv, '-o', '-';
+    }
 
-	push @cmdv, $url;
+    push @cmdv, $url;
 
-	return \@cmdv;
+    return \@cmdv;
 }
 
 sub openbsd_ftp_get_file {
-	my $cmdv = openbsd_ftp_get_cmdv ( @_ );
+    my $cmdv = openbsd_ftp_get_cmdv ( @_ );
 
-	return ( system ( @$cmdv ) == 0 );
+    return ( system ( @$cmdv ) == 0 );
 }
 
 
 sub curl_get_cmdv {
-	my $outfile = shift;
-	my $url = shift;
+    my $outfile = shift;
+    my $url = shift;
 
-	my @cmdv = ('curl', '--silent', '--fail', '--location');
+    my @cmdv = ('curl', '--silent', '--fail', '--location');
 
-	push @cmdv, '--max-time', '45';
+    push @cmdv, '--max-time', '45';
 
-	if ( defined $outfile ) {
-		push @cmdv, '-o', $outfile;
-	}
+    if ( defined $outfile ) {
+        push @cmdv, '-o', $outfile;
+    }
 
-	push @cmdv, $url;
+    push @cmdv, $url;
 
-	return \@cmdv;
+    return \@cmdv;
 }
 
 
 sub curl_get_file {
-	my $cmdv = curl_get_cmdv ( @_ );
+    my $cmdv = curl_get_cmdv ( @_ );
 
-	return ( system ( @$cmdv ) == 0 );
+    return ( system ( @$cmdv ) == 0 );
 }

@@ -10,15 +10,15 @@ releases="${2:-${OMIR_REL:?}}"
 archv="${3:-${OMIR_ARCH:?}}"
 
 for rel in ${releases}; do
-	autodie openbsd_get_short_rel "${rel}"
-	rel_short="${v0:?}"
+    autodie openbsd_get_short_rel "${rel}"
+    rel_short="${v0:?}"
 
-	for arch in ${archv}; do
-		omira_get_filepath "${rel}" "${arch}" "site${rel_short}.tgz"
-		dst="${v0:?}"
+    for arch in ${archv}; do
+        omira_get_filepath "${rel}" "${arch}" "site${rel_short}.tgz"
+        dst="${v0:?}"
 
-		einfo "${dst}"
-		autodie install -D -m 0644 -- "${src}" "${dst}"
-		autodie mkindex "${dst%/*}"
-	done
+        einfo "${dst}"
+        autodie install -D -m 0644 -- "${src}" "${dst}"
+        autodie mkindex "${dst%/*}"
+    done
 done
