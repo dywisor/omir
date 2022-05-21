@@ -27,6 +27,7 @@ __omir_rsync() {
 		-rv \
 		--delete --delete-delay --delay-updates --fuzzy \
 		--exclude '.~tmp~' --exclude '.*' \
+		${OMIR_RSYNC_BWLIMIT:+--bwlimit=${OMIR_RSYNC_BWLIMIT}} \
 		${OMIR_RSYNC_EXTRA_OPTS-} \
 		--chmod=F0644,D0755 \
 		\
