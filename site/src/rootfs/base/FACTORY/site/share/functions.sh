@@ -30,5 +30,5 @@ load_lib pkg
 load_lib git
 
 if [ -f "${FACTORY_SITE_SHLIB:?}/mode/${FACTORY_SITE_MODE:?}.sh" ]; then
-	load_lib "mode/${FACTORY_SITE_MODE}"
+    load_lib "mode/${FACTORY_SITE_MODE}"
 fi

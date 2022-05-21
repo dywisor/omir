@@ -5,8 +5,8 @@ name='sync-hwclock'
 
 print_action "Compile program: ${name}"
 if ! site_cc_prog sync-hwclock; then
-	print_err "Failed to compile {name}"
-	exit 0  # HOOK-CONTINUE
+    print_err "Failed to compile {name}"
+    exit 0  # HOOK-CONTINUE
 fi
 x_prog="${v0:?}"
 

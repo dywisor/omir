@@ -71,7 +71,7 @@ PasswordAuthentication no
 ChallengeResponseAuthentication no
 PubkeyAuthentication yes
 
-AuthorizedKeysFile	${SSHD_SYSTEM_AUTH_KEYS_DIR}/%u
+AuthorizedKeysFile  ${SSHD_SYSTEM_AUTH_KEYS_DIR}/%u
 
 GatewayPorts no
 PermitTunnel no

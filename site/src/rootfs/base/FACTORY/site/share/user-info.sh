@@ -13,7 +13,7 @@ get_pwhash_disabled() {
 }
 
 check_user_exists() {
-	grep -q -- "^${1}:" < /etc/passwd
+    grep -q -- "^${1}:" < /etc/passwd
 }
 
 fetch_user_home() {

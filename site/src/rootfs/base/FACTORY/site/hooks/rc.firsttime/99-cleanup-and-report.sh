@@ -102,7 +102,7 @@ if check_auto_reboot_active; then
     mv -f -- "${RC_FIRSTTIME}.next" "${RC_FIRSTTIME}"
 
 else
-	print_info "Running cleanup code"
-	sync
-	exec /bin/sh -c ". ${RC_FIRSTTIME}.next; rm -f -- ${RC_FIRSTTIME}.next"
+    print_info "Running cleanup code"
+    sync
+    exec /bin/sh -c ". ${RC_FIRSTTIME}.next; rm -f -- ${RC_FIRSTTIME}.next"
 fi

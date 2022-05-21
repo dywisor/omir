@@ -10,12 +10,12 @@ find_python3_pkg() {
 pkg="$( find_python3_pkg | head -n 1 )"
 
 if [ -n "${pkg}" ]; then
-	print_action "Install Python: ${pkg}"
+    print_action "Install Python: ${pkg}"
     if pkg_add "${pkg}"; then
         localconfig_add PYTHON_PKG "${pkg}"
     else
         print_err "Failed to install Python: ${pkg}"
     fi
 else
-	print_err "No Python package found."
+    print_err "No Python package found."
 fi

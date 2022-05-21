@@ -5,8 +5,8 @@
 set -- ${OCONF_PKG_INSTALL-}
 
 if [ ${#} -gt 0 ]; then
-	print_action "Install packages: ${*}"
-	pkg_add "${@}" || print_err "Failed to install packages: ${*}"
+    print_action "Install packages: ${*}"
+    pkg_add "${@}" || print_err "Failed to install packages: ${*}"
 else
-	print_info "No packages to be installed configured."
+    print_info "No packages to be installed configured."
 fi

@@ -4,7 +4,7 @@
 AUTO_REBOOT_FLAG_FILE='/etc/rc.local.forcereboot'
 
 clear_auto_reboot() {
-	[ "${OFEAT_AUTO_REBOOT:-0}" -eq 1 ] || return 0
+    [ "${OFEAT_AUTO_REBOOT:-0}" -eq 1 ] || return 0
 
     if rm -- "${AUTO_REBOOT_FLAG_FILE}"; then
         return 0
@@ -18,8 +18,8 @@ clear_auto_reboot() {
 }
 
 want_auto_reboot() {
-	[ "${OFEAT_AUTO_REBOOT:-0}" -eq 1 ] || return 0
-	autodie touch "${AUTO_REBOOT_FLAG_FILE}"
+    [ "${OFEAT_AUTO_REBOOT:-0}" -eq 1 ] || return 0
+    autodie touch "${AUTO_REBOOT_FLAG_FILE}"
 }
 
 

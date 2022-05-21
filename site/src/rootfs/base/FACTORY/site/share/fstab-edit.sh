@@ -1,7 +1,7 @@
 #!/bin/sh
 
 __io_mounted() {
-	awk -v mp="${1}" 'BEGIN{e=1;} ($2 == mp) { e=0; exit; } END{exit e;}'
+    awk -v mp="${1}" 'BEGIN{e=1;} ($2 == mp) { e=0; exit; } END{exit e;}'
 }
 
 _fstab_add_mfs() {

@@ -3,34 +3,34 @@
 load_lib netconfig
 
 if ! get_iface_cur_config; then
-	print_err "Failed to get primary network interface configuration"
-	exit 0  # HOOK-CONTINUE
+    print_err "Failed to get primary network interface configuration"
+    exit 0  # HOOK-CONTINUE
 fi
 
 
 # strategies.
 set -- \
-	"${OFEAT_NETCONFIG_BY_MAC:-0}"  iface_conf_by_mac \
-	"${OFEAT_NETCONFIG_BY_DHCP:-0}" iface_conf_by_dhcp
+    "${OFEAT_NETCONFIG_BY_MAC:-0}"  iface_conf_by_mac \
+    "${OFEAT_NETCONFIG_BY_DHCP:-0}" iface_conf_by_dhcp
 
 have_config=0
 iface_zap_config
 while [ ${#} -gt 0 ] && [ ${have_config} -eq 0 ]; do
-	if [ "${1}" -eq 1 ]; then
-		if "${2}"; then
-			have_config=1
-			print_info "Using interface configuration from ${2}"
-		else
-			iface_zap_config
-		fi
-	fi
-	shift 2
+    if [ "${1}" -eq 1 ]; then
+        if "${2}"; then
+            have_config=1
+            print_info "Using interface configuration from ${2}"
+        else
+            iface_zap_config
+        fi
+    fi
+    shift 2
 done
 
 
 if [ -z "${iface_hostname}" ]; then
-	print_err "Failed to retrieve hostname"
-	iface_hostname="${OCONF_DEFAULT_HOSTNAME}"
+    print_err "Failed to retrieve hostname"
+    iface_hostname="${OCONF_DEFAULT_HOSTNAME}"
 fi
 
 # normalize hostname -- strip terminating "."
@@ -57,8 +57,8 @@ autodie hostname "${iface_hostname}"
 autodie site_prep /etc/myname
 
 if [ ${have_config} -eq 0 ]; then
-	print_err "No configuration for interface ${iface}, exiting."
-	exit 0 # EXIT-IF-NOT-CONFIGURED
+    print_err "No configuration for interface ${iface}, exiting."
+    exit 0 # EXIT-IF-NOT-CONFIGURED
 fi
 
 
@@ -70,36 +70,36 @@ autodie chmod -- 0600 "/etc/hostname.${iface}.site"
 autodie site_prep "/etc/hostname.${iface}"
 
 if [ ${have_addr} -eq 1 ]; then
-	print_action "mygate"
-	{
-		[ -z "${iface_inet_gw}"  ] || printf '%s\n' "${iface_inet_gw}"
-		[ -z "${iface_inet6_gw}" ] || printf '%s\n' "${iface_inet6_gw}"
-	} > /etc/mygate.site
+    print_action "mygate"
+    {
+        [ -z "${iface_inet_gw}"  ] || printf '%s\n' "${iface_inet_gw}"
+        [ -z "${iface_inet6_gw}" ] || printf '%s\n' "${iface_inet6_gw}"
+    } > /etc/mygate.site
 
-	if [ -s /etc/mygate.site ]; then
-		autodie site_prep /etc/mygate
-	else
-		rm -f -- /etc/mygate.site
-	fi
+    if [ -s /etc/mygate.site ]; then
+        autodie site_prep /etc/mygate
+    else
+        rm -f -- /etc/mygate.site
+    fi
 fi
 
 
 print_action "/etc/hosts"
 {
-	printf '%s\t%s\n' '127.0.0.1' 'localhost'
-	printf '%s\t%s\n' '::1' 'localhost'
+    printf '%s\t%s\n' '127.0.0.1' 'localhost'
+    printf '%s\t%s\n' '::1' 'localhost'
 
-	if [ -n "${iface_inet_addr}" ]; then
-		printf '%s\t%s %s\n' \
-			"${iface_inet_addr}" \
-			"${iface_hostname%%.*}" "${iface_hostname}"
-	fi
+    if [ -n "${iface_inet_addr}" ]; then
+        printf '%s\t%s %s\n' \
+            "${iface_inet_addr}" \
+            "${iface_hostname%%.*}" "${iface_hostname}"
+    fi
 
-	if [ -n "${iface_inet6_addr}" ]; then
-		printf '%s\t%s %s\n' \
-			"${iface_inet6_addr}" \
-			"${iface_hostname%%.*}" "${iface_hostname}"
-	fi
+    if [ -n "${iface_inet6_addr}" ]; then
+        printf '%s\t%s %s\n' \
+            "${iface_inet6_addr}" \
+            "${iface_hostname%%.*}" "${iface_hostname}"
+    fi
 } > /etc/hosts.site
 autodie test -s /etc/hosts.site
 autodie site_prep /etc/hosts
@@ -107,22 +107,22 @@ autodie site_prep /etc/hosts
 
 # COULDFIX: iface_ntp?
 if [ -n "${iface_resolv_ns}" ]; then
-	print_action "ntp config"
-	{
-		printf 'sensor *\n'
-		printf 'server %s\n' ${iface_resolv_ns}  # implicit loop
-	} > /etc/ntpd.conf.site
-	autodie test -s /etc/ntpd.conf.site
-	autodie site_prep /etc/ntpd.conf
+    print_action "ntp config"
+    {
+        printf 'sensor *\n'
+        printf 'server %s\n' ${iface_resolv_ns}  # implicit loop
+    } > /etc/ntpd.conf.site
+    autodie test -s /etc/ntpd.conf.site
+    autodie site_prep /etc/ntpd.conf
 fi
 
 if [ -n "${iface_resolv_ns}" ]; then
-	print_action "resolv.conf"
-	{
-		printf 'lookup file bind\n'
-		[ -z "${iface_resolv_search}" ] || printf 'search %s\n' "${iface_resolv_search}"
-		printf 'nameserver %s\n' ${iface_resolv_ns}  # implicit loop
-	} > /etc/resolv.conf.site
-	autodie test -s /etc/resolv.conf.site
-	autodie site_prep /etc/resolv.conf
+    print_action "resolv.conf"
+    {
+        printf 'lookup file bind\n'
+        [ -z "${iface_resolv_search}" ] || printf 'search %s\n' "${iface_resolv_search}"
+        printf 'nameserver %s\n' ${iface_resolv_ns}  # implicit loop
+    } > /etc/resolv.conf.site
+    autodie test -s /etc/resolv.conf.site
+    autodie site_prep /etc/resolv.conf
 fi
