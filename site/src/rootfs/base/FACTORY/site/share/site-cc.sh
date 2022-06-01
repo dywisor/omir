@@ -7,7 +7,7 @@ site_cc() {
     outfile="${1:?}"; shift
 
     print_action "Compiling program: ${outfile} from ${*}"
-    if ! gcc -std=c99 -O2 -static -o "${outfile}" "${@}"; then
+    if ! cc -std=c99 -O2 -static -o "${outfile}" "${@}"; then
         print_err "Failed to compile ${outfile}"
         return 1
     fi
